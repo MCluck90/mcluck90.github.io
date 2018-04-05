@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116914548-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-116914548-1');
+    </script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
@@ -58,8 +66,8 @@ const host = "google.com";
 <div class="post">
   <h1 class="post-title">Abusing Proxies for DSLs</h1>
   <span class="post-date">2018-04-05</span>
-  <p>One of my favorite past-times is stretching the edges of JavaScript. Writing inane things just because you can is a great way to ensure job security through obscurity. So put on your apron because the <em>Plat du jour</em> is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxies</a>.</p>
-<p>Proxies are a tool used for metaprogramming. They allow you to reach into common object operations, such as getting and setting properties, and make them do whatever you want. All it takes is wrapping an object in a call to <code>new Proxy</code> to open up a magical realm.</p>
+  <p>One of my favorite past-times is stretching the edges of JavaScript. Writing inane things just because you can is a great way to ensure job security through obscurity. So put on your apron because the <em>Plat du jour</em> is Proxies.</p>
+<p>Proxies are a tool used for metaprogramming. They allow you to reach into common object operations, such as getting and setting properties, and make them do whatever you want. All it takes is wrapping an object in a call to <code>new Proxy</code> to open up a magical realm. You can read more at <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">MDN</a>.</p>
 <pre style="background-color:#1e1e1e">
 <span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">novice = {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">name: </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;Magnifico the Magician&#39;
