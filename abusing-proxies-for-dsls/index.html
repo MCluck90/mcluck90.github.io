@@ -66,7 +66,30 @@ const host = "google.com";
 <div class="post">
   <h1 class="post-title">Abusing Proxies for DSLs</h1>
   <span class="post-date">2018-04-05</span>
-  <p>One of my favorite past-times is stretching the edges of JavaScript. Writing inane things just because you can is a great way to ensure job security through obscurity. So put on your apron because the <em>Plat du jour</em> is Proxies.</p>
+  <p><em>Spoiler alert: At the end of this article, we'll be able to solve FizzBuzz by writing this</em></p>
+<div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Spoiler</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.i(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isFizz(x </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">x % </span><span style="background-color:#1e1e1e;color:#b5cea8;">3 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">=== </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isBuzz(x </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">x % </span><span style="background-color:#1e1e1e;color:#b5cea8;">5 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">=== </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop(() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt;= </span><span style="background-color:#1e1e1e;color:#b5cea8;">100</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isFizz(dsl.i) </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isBuzz(dsl.i), () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.fizz.buzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isFizz(dsl.i), () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.fizzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isBuzz(dsl.i), () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.buzzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(dsl.i)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.i(dsl.i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre></div>
+<hr />
+<p>One of my favorite past-times is stretching the edges of JavaScript. Writing inane things just because you can is a great way to ensure job security through obscurity. So put on your apron because the <em>Plat du jour</em> is Proxies.</p>
 <p>Proxies are a tool used for metaprogramming. They allow you to reach into common object operations, such as getting and setting properties, and make them do whatever you want. All it takes is wrapping an object in a call to <code>new Proxy</code> to open up a magical realm. You can read more at <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">MDN</a>.</p>
 <pre style="background-color:#1e1e1e">
 <span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">novice = {
@@ -117,7 +140,8 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
-</span><span style="background-color:#1e1e1e;color:#608b4e;">// I&#39;m moving the different grammar rules into a separate object. Keep things nice and clean
+</span><span style="background-color:#1e1e1e;color:#608b4e;">// I&#39;m moving the different grammar rules into a separate object.
+</span><span style="background-color:#1e1e1e;color:#608b4e;">// Helps keep things nice and clean
 </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl }) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Check this out, we can return a function
@@ -869,7 +893,7 @@ const host = "google.com";
 <p>And there we have it! Much to the joy of interviewers and computer scientists alike, we've successfully solved the elusive FizzBuzz problem. I'll be sure to include you as a contributor on the academic paper which will follow. You're ready to storm the doors of Apple, Microsoft, or Google and demand whatever salary you want.</p>
 <p>Oh yeah, we also learned a thing or two about proxies.</p>
 <hr />
-<p>Real talk: Why would you want to use this? I'm not sure. I could imagine proxies being useful for polyfills and perhaps for, exactly this, various DSLs. Could be a nice way of writing a SQL query generator or as a way of documenting business needs. If nothing else, it adds another tool to your belt and maybe one of you will find a much more useful application of this interesting bit of tech.</p>
+<p>Real talk: Why would you want to use this? I'm not sure. I could imagine proxies being useful for polyfills and perhaps for, exactly this, various DSLs. Could be a nice way of writing a SQL query generator or as a way of documenting business needs. If nothing else, it adds another tool to your belt and maybe you will find a much more useful application for this interesting bit of tech.</p>
 <hr />
 <p><small>
 References:</p>
