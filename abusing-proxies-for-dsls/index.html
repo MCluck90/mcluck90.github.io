@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Stuff and Things</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck90.github.io&#x2F;print.css" media="print">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck90.github.io&#x2F;poole.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck90.github.io&#x2F;hyde.css">
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck90.github.io&#x2F;custom.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+    
+  </head>
+
+  <body class=" ">
+    
+      <div class="sidebar">
+        <div class="container sidebar-sticky">
+          <div class="sidebar-about">
+            
+              <a href="https:&#x2F;&#x2F;mcluck90.github.io"><h1>Stuff and Things</h1></a>
+              
+              <p class="lead">A descent into the mind of Mike Cluck</p>
+              
+            
+          </div>
+
+          <ul class="sidebar-nav">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;github.com&#x2F;MCluck90">GitHub</a></li>
+            
+            <li><a href="https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;371184&#x2F;mike-c">Stack Overflow</a></li>
+            
+            
+          </ul>
+          <pre>
+// Email
+const username = "mcluck90";
+const host = "google.com";
+          </pre>
+        </div>
+      </div>
+    
+
+    <div class="content container">
+      
+<div class="post">
+  <h1 class="post-title">Abusing Proxies for DSLs</h1>
+  <span class="post-date">2018-04-05</span>
+  <p>One of my favorite past-times is stretching the edges of JavaScript. Writing inane things just because you can is a great way to ensure job security through obscurity. So put on your apron because the <em>Plat du jour</em> is <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxies</a>.</p>
+<p>Proxies are a tool used for metaprogramming. They allow you to reach into common object operations, such as getting and setting properties, and make them do whatever you want. All it takes is wrapping an object in a call to <code>new Proxy</code> to open up a magical realm.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">novice = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">name: </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;Magnifico the Magician&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">magician = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy(novice, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(wizard, prop) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(prop === </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;hat&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;rabbit&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">wizard[prop];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">magician.name; </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;Magnifico the Magician&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">magician.hat;  </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;rabbit&#39;
+</span></pre>
+<p>Et voilà! That's real, working code. What we've done here is added a handler or &quot;trap&quot; for the <code>get</code> operation on an object. The handler is passed the object it's acting on (in this case, <code>novice</code> which we renamed to <code>wizard</code>) and the name of the property you're accessing. There's a lot more that you can hook into with proxies but today we're only going to use this part of them. However, using just this small part, we're going to make our own DSL or domain-specific language.</p>
+<p>Before we get too deep into it, we need a goal for our little language. As any programmer worth their salt knows, FizzBuzz is one of the great challenges of our era. While some &quot;scientists&quot; are wasting time optimizing door-to-door sales, we're going to design a language which allows us to solve the problem that has perplexed interviewers since the beginning of (Unix) time.</p>
+<h2 id="write-the-chains-that-bind">Write the chains that bind</h2>
+<p>No self-respecting DSL would require you to reference it all of the time. It doesn't need that kind of validation. That's why the first thing we need to do is allow our &quot;interpreter&quot; to chain. That means that every property access will return the original &quot;interpreter&quot;. Access the DSL once, always have access to it.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(_, prop) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">it.just.keeps.going.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">and.going.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">and.going;
+</span></pre>
+<p>But we don't always have to return <code>dsl</code>. We could also return other values, such as functions. Normally, this would lead to a break in the chain and everything would come crashing down. However, as long as those functions return <code>dsl</code> then we can keep our chain going. With that, we've setup our little world so let's go say hi.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(_, prop) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[prop];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Pass along the DSL so we can continue chaining.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// We&#39;re passing an object because we intend to extend
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// this later down the line.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl });
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#608b4e;">// I&#39;m moving the different grammar rules into a separate object. Keep things nice and clean
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Check this out, we can return a function
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// instead of the usual chaining
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Now we reapply the chain after the function call
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;hello world&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).   </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;hello world&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;goodbye world&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">); </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;goodbye world&#39;
+</span></pre><h2 id="take-a-token-or-two">Take a token or two</h2>
+<p>This is great and all but at this point, we just have a chained function. We could have done that without all of the song and dance surrounding proxies. What we want to do is create our own special statements and for that we need to process tokens. For those of you who don't know, a token is not just something you use to represent yourself in a board game or trade for a ride on a ferry. Tokens, in compiler vernacular, refer to the tiny bits that make up a language. Things like <code>if</code>, <code>i</code>, and <code>+</code>. Each individual &quot;word&quot; in a programming language (including operators, numbers, etc.) is a token. For our language, we want to be able to print out &quot;FizzBuzz&quot; so let's combine a few tokens to generate a statement which will do this for us.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(_, token) { </span><span style="background-color:#1e1e1e;color:#608b4e;">// &lt;-- Bam! No longer a property but a token
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Minor deviation: we swapped `token` for `tokens[0]`
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// We want to use the first token in the stream to match
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// different rules since individual rules may require
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// multiple tokens
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Here&#39;s a cool trick: we can tell it to only
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// call the rule function if enough tokens
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// have been added to the stream
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Pass along the tokens so we can modify them as needed
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Matched a statement, clear the token stream
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) { </span><span style="background-color:#1e1e1e;color:#569cd6;">... </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz.buzz. </span><span style="background-color:#1e1e1e;color:#608b4e;">// &quot;FizzBuzz&quot;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz.buzz; </span><span style="background-color:#1e1e1e;color:#608b4e;">// &quot;FizzBuzz&quot;
+</span></pre><div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Full Code</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(_, token) { </span><span style="background-color:#1e1e1e;color:#608b4e;">// &lt;-- Bam! No longer a property but a token
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Minor deviation: we swapped `token` for `tokens[0]`
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// We want to use the first token in the stream to match
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// different rules since individual rules may require
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// multiple tokens
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Here&#39;s a cool trick: we can tell it to only
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// call the rule function if enough tokens
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// have been added to the stream
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Pass along the tokens so we can modify them as needed
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Matched a statement, clear the token stream
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Matched a statement, clear the token stream
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz.buzz. </span><span style="background-color:#1e1e1e;color:#608b4e;">// &quot;FizzBuzz&quot;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz.buzz; </span><span style="background-color:#1e1e1e;color:#608b4e;">// &quot;FizzBuzz&quot;
+</span></pre></div>
+<h2 id="data-is-only-a-state-of-mind">Data is only a state of mind</h2>
+<p>We've got some essential groundwork taken care of so let's start actually building up a language. First things first, we need to be able to get and set values. No data means no program. We could just store all of our data using <code>let</code> or <code>const</code> (not <code>var</code>, fight me) but where's the fun in that? Instead, we're going to use that dummy object we've been wrapping up in a proxy as our state object. This also makes it easier to refer to values by name.</p>
+<p>I'll warn you in advance: I lied a little bit earlier. I said we'd only need to access <code>dsl</code> once to run our whole language. The reality is that we'll need to access it again for sub-expressions. I hope you'll forgive me.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(state, token) { </span><span style="background-color:#1e1e1e;color:#608b4e;">// &lt;-- Now we&#39;re wrapping around the state
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Before anything, we&#39;re going to try and access a variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length === </span><span style="background-color:#1e1e1e;color:#b5cea8;">0 </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token] !== </span><span style="background-color:#1e1e1e;color:#569cd6;">undefined</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Need to pass along the state now
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, state, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// Here&#39;s how we&#39;re going to assign values
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// `identifier` will give us the name of the variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Now we use a function so we can assign any value at all
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// to our variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">...
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.mind(&#39;empty&#39;).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(dsl.mind). </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;empty&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.mind(&#39;full&#39;).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(dsl.mind); </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;full&#39;
+</span></pre><div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Full Code</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(state, token) { </span><span style="background-color:#1e1e1e;color:#608b4e;">// &lt;-- Now we&#39;re wrapping around the state
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Before anything, we&#39;re going to try and access a variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length === </span><span style="background-color:#1e1e1e;color:#b5cea8;">0 </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token] !== </span><span style="background-color:#1e1e1e;color:#569cd6;">undefined</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Need to pass along the state now
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, state, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// Here&#39;s how we&#39;re going to assign values
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// `identifier` will give us the name of the variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Now we use a function so we can assign any value at all
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// to our variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.mind(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;empty&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(dsl.mind). </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;empty&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.mind(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;full&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(dsl.mind); </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;full&#39;
+</span></pre></div>
+<p>Fun fact: we're done working on the <code>get</code> handler. Everything we need to build up and process our language is there. 20 lines of code is enough to process simple statements and expressions. Now we just have to write the actual rules of our language.</p>
+<h2 id="if-and-only-if">If and only if</h2>
+<p><code>if</code>. The great fork in the road. Used quadrillions of times (citation needed) and the only thing used in advanced artificial intelligence. If you're going to make a language, you need some way to change course based on the whims of the data. This is surprisingly easy to build into our language. We really just need a single statement that takes in two functions: one as the predicate (the thing which produces a boolean value) and one as the body (the thing that runs when the condition is true).</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// iff -&gt; &quot;if and only if&quot;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate, body) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">...
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.isSkynet(true).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(() =&gt; dsl.isSkynet, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(&#39;take over the world&#39;) </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;take over the world&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(() =&gt; !dsl.isSkynet, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(&#39;not gonna happen&#39;)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre><div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Full Code</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(state, token) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Before anything, we&#39;re going to try and access a variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length === </span><span style="background-color:#1e1e1e;color:#b5cea8;">0 </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token] !== </span><span style="background-color:#1e1e1e;color:#569cd6;">undefined</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, state, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// iff -&gt; &quot;if and only if&quot;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate, body) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isSkynet(</span><span style="background-color:#1e1e1e;color:#569cd6;">true</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isSkynet, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;take over the world&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;take over the world&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; !</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isSkynet, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;not gonna happen&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre></div>
+<p>But hey, we're computer scientists. We can make this a little smarter. Put on your brain pants because we're going to allow--wait for it--<code>else</code>. Not only that, but we're going to allow <code>else if</code> and it will all work in the same statement.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// iff -&gt; &quot;if and only if&quot;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">for </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">i = </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">; i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">args.length; i += </span><span style="background-color:#1e1e1e;color:#b5cea8;">2</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate = args[i];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body = args[i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#608b4e;">// If there&#39;s no body, this must be the `else` clause
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">!</span><span style="background-color:#1e1e1e;color:#dcdcdc;">body) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">...
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.isSkynet(false).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.isTerminator(false).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.isSarahConnor(!dsl.isSkynet &amp;&amp; !dsl.isTerminator).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// else-if
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isSkynet, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(&#39;take over the world&#39;),
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isSarahConnor, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(&#39;destroy the Terminator&#39;)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">). </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;destroy the Terminator&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// else
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isSkynet, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(&#39;take over the world&#39;),
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isTerminator, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(&#39;destroy Sarah Connor&#39;),
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.log(&#39;the world is safe&#39;)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">); </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;the world is safe&#39;
+</span></pre><div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Full Code</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(state, token) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Before anything, we&#39;re going to try and access a variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length === </span><span style="background-color:#1e1e1e;color:#b5cea8;">0 </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token] !== </span><span style="background-color:#1e1e1e;color:#569cd6;">undefined</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, state, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// iff -&gt; &quot;if and only if&quot;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">for </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">i = </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">; i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">args.length; i += </span><span style="background-color:#1e1e1e;color:#b5cea8;">2</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate = args[i];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body = args[i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#608b4e;">// If there&#39;s no body, this must be the `else` clause
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">!</span><span style="background-color:#1e1e1e;color:#dcdcdc;">body) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isSkynet(</span><span style="background-color:#1e1e1e;color:#569cd6;">false</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isTerminator(</span><span style="background-color:#1e1e1e;color:#569cd6;">false</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isSarahConnor(</span><span style="background-color:#1e1e1e;color:#569cd6;">!</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isSkynet </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; !</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isTerminator).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// else-if
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isSkynet, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;take over the world&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">),
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isSarahConnor, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;destroy the Terminator&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">). </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;destroy the Terminator&#39;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// else
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isSkynet, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;take over the world&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">),
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isTerminator, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;destroy Sarah Connor&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">),
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;the world is safe&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">); </span><span style="background-color:#1e1e1e;color:#608b4e;">// &#39;the world is safe&#39;
+</span></pre></div>
+<h2 id="here-we-go-loop-de-loop">Here we go loop-de-loop</h2>
+<p>A key component of the <em>FizzBuzz Conundrum</em><sup>1</sup> is the need to iterate over many values. For this I think, now stay with me here, we should use a loop. It seems impossible but I'm going to blow your mind a little bit. We're going to add looping and it's going to be super easy. You could write it yourself. Go ahead and think on it for a second.</p>
+<hr />
+<p>Yup, just like an <code>if</code> statement. It's pretty easy once you've got the essentials written.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate, body) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">while </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">...
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.i(1).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop(() =&gt; dsl.i &lt;= </span><span style="background-color:#1e1e1e;color:#b5cea8;">10</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(dsl.i). </span><span style="background-color:#1e1e1e;color:#608b4e;">// 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.i(dsl.i + 1)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre><div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Full Code</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(state, token) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Before anything, we&#39;re going to try and access a variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length === </span><span style="background-color:#1e1e1e;color:#b5cea8;">0 </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token] !== </span><span style="background-color:#1e1e1e;color:#569cd6;">undefined</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, state, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate, body) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">while </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">for </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">i = </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">; i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">args.length; i += </span><span style="background-color:#1e1e1e;color:#b5cea8;">2</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate = args[i];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body = args[i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#608b4e;">// If there&#39;s no body, this must be the `else` clause
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">!</span><span style="background-color:#1e1e1e;color:#dcdcdc;">body) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.i(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop(() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt;= </span><span style="background-color:#1e1e1e;color:#b5cea8;">10</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log(dsl.i). </span><span style="background-color:#1e1e1e;color:#608b4e;">// 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.i(dsl.i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre></div>
+<h2 id="the-grand-finale">The Grand Finale</h2>
+<p>This is the moment you've all been waiting on. We have all of the tools we need to write a solution to the insurmountable FizzBuzz problem. You've ascended this mountain with me, now it's time to place our flag. Just for <code>A E S T H E T I C</code> reasons, we're going to add a couple more statements to our language.</p>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizzz({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;Fizz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">buzzz({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;Buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">...
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.i(1).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.isFizz(x =</span><span style="background-color:#1e1e1e;color:#569cd6;">&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">x % </span><span style="background-color:#1e1e1e;color:#b5cea8;">3 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">=== </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.isBuzz(x =</span><span style="background-color:#1e1e1e;color:#569cd6;">&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">x % </span><span style="background-color:#1e1e1e;color:#b5cea8;">5 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">=== </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop(() =&gt; dsl.i &lt;= </span><span style="background-color:#1e1e1e;color:#b5cea8;">100</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isFizz(dsl.i) &amp;&amp; dsl.isBuzz(dsl.i), () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.fizz.buzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isFizz(dsl.i), () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.fizzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.isBuzz(dsl.i), () =&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.buzzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() =&gt; dsl.log(dsl.i)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">set</span><span style="background-color:#1e1e1e;color:#dcdcdc;">.i(dsl.i + 1)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre><div class="hidden-codeblock">
+<button class="toggle-codeblock">Show/Hide Full Code</button>
+<pre style="background-color:#1e1e1e">
+<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens = [];
+</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl = </span><span style="background-color:#1e1e1e;color:#569cd6;">new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">Proxy({}, {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">get(state, token) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// Before anything, we&#39;re going to try and access a variable
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length === </span><span style="background-color:#1e1e1e;color:#b5cea8;">0 </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token] !== </span><span style="background-color:#1e1e1e;color:#569cd6;">undefined</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[token];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.push(token);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule = grammar[tokens[</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(rule) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(tokens.length !== rule.length) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">rule({ dsl, state, tokens }, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.slice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">));
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// No matching rule, just keep on chugging along
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">grammar = {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizzz({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;Fizz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">buzzz({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;Buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate, body) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">while </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">for </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">i = </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">; i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">args.length; i += </span><span style="background-color:#1e1e1e;color:#b5cea8;">2</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate = args[i];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body = args[i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">];
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#608b4e;">// If there&#39;s no body, this must be the `else` clause
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">!</span><span style="background-color:#1e1e1e;color:#dcdcdc;">body) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">predicate();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(predicate()) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">body();
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">fizz({ dsl, tokens }, buzz) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(buzz !== </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;buzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">throw new </span><span style="background-color:#1e1e1e;color:#dcdcdc;">SyntaxError(</span><span style="background-color:#1e1e1e;color:#d69d85;">`Expected &quot;buzz&quot;, got &quot;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">${buzz}</span><span style="background-color:#1e1e1e;color:#d69d85;">&quot;`</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;FizzBuzz&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">},
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">log({ dsl, tokens }) {
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">console.log(</span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">args);
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">};
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.i(</span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isFizz(x </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">x % </span><span style="background-color:#1e1e1e;color:#b5cea8;">3 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">=== </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.isBuzz(x </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">x % </span><span style="background-color:#1e1e1e;color:#b5cea8;">5 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">=== </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">loop(() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.i </span><span style="background-color:#1e1e1e;color:#569cd6;">&lt;= </span><span style="background-color:#1e1e1e;color:#b5cea8;">100</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">iff(
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isFizz(dsl.i) </span><span style="background-color:#1e1e1e;color:#569cd6;">&amp;&amp; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isBuzz(dsl.i), () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.fizz.buzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isFizz(dsl.i), () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.fizzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.isBuzz(dsl.i), () </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt;
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">          </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.buzzz,
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">        </span><span style="background-color:#1e1e1e;color:#dcdcdc;">() </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl.log(dsl.i)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">).
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set.i(dsl.i + </span><span style="background-color:#1e1e1e;color:#b5cea8;">1</span><span style="background-color:#1e1e1e;color:#dcdcdc;">)
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+</span></pre></div>
+<h2 id="conclusion">Conclusion</h2>
+<p>And there we have it! Much to the joy of interviewers and computer scientists alike, we've successfully solved the elusive FizzBuzz problem. I'll be sure to include you as a contributor on the academic paper which will follow. You're ready to storm the doors of Apple, Microsoft, or Google and demand whatever salary you want.</p>
+<p>Oh yeah, we also learned a thing or two about proxies.</p>
+<hr />
+<p>Real talk: Why would you want to use this? I'm not sure. I could imagine proxies being useful for polyfills and perhaps for, exactly this, various DSLs. Could be a nice way of writing a SQL query generator or as a way of documenting business needs. If nothing else, it adds another tool to your belt and maybe one of you will find a much more useful application of this interesting bit of tech.</p>
+<hr />
+<p><small>
+References:</p>
+<p>1: Cluck, Mike. <em>Fizzle and Buzz: The Problem of a Century</em>. Dijkstra &amp; Knuth, 20XX BC (Before Computing)
+</small></p>
+
+</div>
+
+    </div>
+
+    <script>
+      // Toggle code snippets
+      document.addEventListener('click', function(event) {
+        var target = event.target;
+        if (!target.classList.contains('toggle-codeblock')) {
+          return;
+        }
+
+        var container = target.parentNode;
+        if (container.classList.contains('visible')) {
+          container.classList.remove('visible');
+        } else {
+          container.classList.add('visible');
+        }
+      });
+    </script>
+
+  </body>
+
+</html>
