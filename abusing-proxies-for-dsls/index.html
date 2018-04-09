@@ -15,7 +15,9 @@
     <!-- Enable responsiveness on mobile devices-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-    <title>Stuff and Things</title>
+    <title>
+Abusing Proxies for DSLs - Stuff and Things
+</title>
 
     <!-- CSS -->
     <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck90.github.io&#x2F;print.css" media="print">
@@ -290,7 +292,7 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// Here&#39;s how we&#39;re going to assign values
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// `identifier` will give us the name of the variable
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Now we use a function so we can assign any value at all
@@ -337,7 +339,7 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#608b4e;">// Here&#39;s how we&#39;re going to assign values
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#608b4e;">// `identifier` will give us the name of the variable
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#608b4e;">// Now we use a function so we can assign any value at all
@@ -437,7 +439,7 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
@@ -570,7 +572,7 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
@@ -703,7 +705,7 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
@@ -845,7 +847,7 @@ const host = "google.com";
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">set({ dsl, state, tokens }, identifier) {
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">tokens.splice(</span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, tokens.length);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">
+</span><span style="background-color:#1e1e1e;color:#dcdcdc;">
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(value) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#dcdcdc;">state[identifier] = value;
 </span><span style="background-color:#1e1e1e;color:#dcdcdc;">      </span><span style="background-color:#1e1e1e;color:#569cd6;">return </span><span style="background-color:#1e1e1e;color:#dcdcdc;">dsl;
