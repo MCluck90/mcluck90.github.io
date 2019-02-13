@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mcluck90.github.io/abusing-proxies-for-dsls/</loc>
+    <loc>https://mcluck.tech/abusing-proxies-for-dsls/</loc>
     <lastmod>2018-04-05</lastmod>
   </url>
   <url>
-    <loc>https://mcluck90.github.io/how-i-made-windows-sexier/</loc>
-    <lastmod>2018-05-25</lastmod>
-  </url>
-  <url>
-    <loc>https://mcluck90.github.io/writing-something-on-the-side/</loc>
+    <loc>https://mcluck.tech/writing-something-on-the-side/</loc>
     <lastmod>2018-04-20</lastmod>
   </url>
   <url>
-    <loc>https://mcluck90.github.io/</loc>
+    <loc>https://mcluck.tech/how-i-made-windows-sexier/</loc>
+    <lastmod>2018-05-25</lastmod>
+  </url>
+  <url>
+    <loc>https://mcluck.tech/</loc>
   </url>
 </urlset>
