@@ -6,7 +6,17 @@
 		<generator>Gutenberg</generator>
 		<language>en</language>
 		<atom:link href="https:&#x2F;&#x2F;mcluck.tech&#x2F;rss.xml" rel="self" type="application/rss+xml"/>
-		<lastBuildDate>Fri, 01 Jun 2018 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Tue, 05 Nov 2019 00:00:00 +0000</lastBuildDate>
+		
+			
+			<item>
+				<title>Reduce Redux Boilerplate with Lenses</title>
+				<pubDate>Tue, 05 Nov 2019 00:00:00 +0000</pubDate>
+				<link>https:&#x2F;&#x2F;mcluck.tech&#x2F;reduce-redux-boilerplate-with-lenses&#x2F;</link>
+				<guid>https:&#x2F;&#x2F;mcluck.tech&#x2F;reduce-redux-boilerplate-with-lenses&#x2F;</guid>
+				<description>&lt;br /&gt;&lt;a href=&quot;https:&#x2F;&#x2F;mcluck.tech&#x2F;reduce-redux-boilerplate-with-lenses&#x2F;#continue-reading&quot;&gt;Continue Reading&lt;/a&gt;</description>
+			</item>
+			
 		
 			
 		

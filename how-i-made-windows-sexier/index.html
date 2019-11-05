@@ -80,45 +80,45 @@ const host = "google.com";
 <p>I knew in a general sense that Windows supported transparency since, for example, my taskbar is transparent. But it hadn't occurred to me that arbitrary windows could be made to be transparent. Thus, I made it my goal in life (or at least for the week) to discover how the wizard named <a href="https://github.com/SkaceKamen">SkaceKamen</a> had performed this magic and invoke the incantations myself. The end result is a general library that I posted named, rather imaginatively, <a href="https://github.com/MCluck90/win-opacity-js">win-opacity</a>.</p>
 <h2 id="how-did-they-do-it">How did they do it?</h2>
 <p>The source code for the original extension proved useful. I was able to copy out certain sections and get a micro-demo going really quickly. But I wanted to really understand how it works and that required me to take a foray into the Windows API. Before I could do that, I needed to learn a thing or two about <a href="https://en.wikipedia.org/wiki/Foreign_function_interface">foreign function interfaces (FFI)</a>. A foreign function interface is, for my purposes, a way to call into functionality that exists outside of the language you're writing in. For example, calling into a C API from JavaScript. Luckily for me, this is pretty easy to do with <a href="https://github.com/node-ffi/node-ffi">node-ffi</a>. Hooking into a native API is as simple as</p>
-<pre style="background-color:#1e1e1e">
-<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">ffi = require(</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;ffi&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
-</span><span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">lib = ffi.Library(nameOfLibrary, {
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">NameOfFunction: [
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">returnType,
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">[parameterType1, parameterType2, </span><span style="background-color:#1e1e1e;color:#569cd6;">...</span><span style="background-color:#1e1e1e;color:#dcdcdc;">]
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">]
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+<pre style="background-color:#1e1e1e;">
+<span style="color:#569cd6;">const </span><span style="color:#dcdcdc;">ffi = require(</span><span style="color:#d69d85;">&#39;ffi&#39;</span><span style="color:#dcdcdc;">);
+</span><span style="color:#569cd6;">const </span><span style="color:#dcdcdc;">lib = ffi.Library(nameOfLibrary, {
+  NameOfFunction: [
+    returnType,
+    [parameterType1, parameterType2, </span><span style="color:#569cd6;">...</span><span style="color:#dcdcdc;">]
+  ]
+});
 </span></pre>
 <p>Now all I had to do was hook this up to the correct API and get going.</p>
 <p>The thing is... I've never actually worked with any Windows APIs directly. Anytime I needed something, like window creation, I always used libraries which wrapped away all of that nastiness. It turns out, it's not actually that bad. At least not the part that I worked with. The first thing I needed to do was find a way to access available windows. The function for that is called <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms633497(v=vs.85).aspx"><code>EnumWindows</code></a>. With some help from <a href="https://github.com/TooTallNate/ref"><code>ref</code></a> for getting the right types, I had that function hooked up. I gotta say though, this function works in a slightly unusual way. <code>EnumWindows</code> takes a callback which is called for each window it finds. If that callback returns <code>true</code>, it will continue on to the next window. Otherwise, it will stop iterating. It works kind of like <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every"><code>every</code></a> in JavaScript. The reason I say it's unusual is because of the kind of code it forces you to write. You can't just pass any old callback to it like you would expect to in JavaScript. Normally, I would just write something like this:</p>
-<pre style="background-color:#1e1e1e">
-<span style="background-color:#1e1e1e;color:#569cd6;">let </span><span style="background-color:#1e1e1e;color:#dcdcdc;">windows = [];
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">user32.EnumWindows((handle) </span><span style="background-color:#1e1e1e;color:#569cd6;">=&gt; </span><span style="background-color:#1e1e1e;color:#dcdcdc;">{
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">if </span><span style="background-color:#1e1e1e;color:#dcdcdc;">(isAGoodWindow(handle)) {
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#dcdcdc;">windows.push(handle);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">return true</span><span style="background-color:#1e1e1e;color:#dcdcdc;">;
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">});
+<pre style="background-color:#1e1e1e;">
+<span style="color:#569cd6;">let </span><span style="color:#dcdcdc;">windows = [];
+user32.EnumWindows((handle) </span><span style="color:#569cd6;">=&gt; </span><span style="color:#dcdcdc;">{
+  </span><span style="color:#569cd6;">if </span><span style="color:#dcdcdc;">(isAGoodWindow(handle)) {
+    windows.push(handle);
+  }
+  </span><span style="color:#569cd6;">return true</span><span style="color:#dcdcdc;">;
+});
 </span></pre>
 <p>However, it needs to be wrapped up in a way that works with the FFI layer. Something like this:</p>
-<pre style="background-color:#1e1e1e">
-<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">enumWindowsCallback = ffi.Callback(
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;bool&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, </span><span style="background-color:#1e1e1e;color:#608b4e;">// Return type
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">[</span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;long&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, </span><span style="background-color:#1e1e1e;color:#d69d85;">&#39;int32&#39;</span><span style="background-color:#1e1e1e;color:#dcdcdc;">], </span><span style="background-color:#1e1e1e;color:#608b4e;">// Parameter types
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#569cd6;">function</span><span style="background-color:#1e1e1e;color:#dcdcdc;">(handle, _) {
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">    </span><span style="background-color:#1e1e1e;color:#569cd6;">...
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">}
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
+<pre style="background-color:#1e1e1e;">
+<span style="color:#569cd6;">const </span><span style="color:#dcdcdc;">enumWindowsCallback = ffi.Callback(
+  </span><span style="color:#d69d85;">&#39;bool&#39;</span><span style="color:#dcdcdc;">, </span><span style="color:#608b4e;">// Return type
+  </span><span style="color:#dcdcdc;">[</span><span style="color:#d69d85;">&#39;long&#39;</span><span style="color:#dcdcdc;">, </span><span style="color:#d69d85;">&#39;int32&#39;</span><span style="color:#dcdcdc;">], </span><span style="color:#608b4e;">// Parameter types
+  </span><span style="color:#569cd6;">function</span><span style="color:#dcdcdc;">(handle, _) {
+    </span><span style="color:#569cd6;">...
+  </span><span style="color:#dcdcdc;">}
+);
 </span></pre>
 <p>Which could be done every time you need to grab a set of windows but it just seems wasteful to re-initialize it every time. This results in slightly unorthodox JavaScript but it's not a big deal.</p>
 <p>The really interesting bit comes when you try to apply opacity to the windows you've found.</p>
 <p>Windows have basic and <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx">extended</a> styles. This includes things like what kind of border the window has, what order things are drawn in, and if the window is layered. That last one is what I needed. <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms632599(v=vs.85).aspx#layered">Layered windows</a> are a special feature of Windows 8+ which can be used for various alpha effects. By enabling this flag, we can set the opacity of a window. It's as easy as:</p>
-<pre style="background-color:#1e1e1e">
-<span style="background-color:#1e1e1e;color:#569cd6;">const </span><span style="background-color:#1e1e1e;color:#dcdcdc;">windowLong = user32.GetWindowLongA(handle, GWL_EXSTYLE);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">user32.SetWindowLongA(
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">  </span><span style="background-color:#1e1e1e;color:#dcdcdc;">handle, GWL_EXSTYLE, windowLong </span><span style="background-color:#1e1e1e;color:#569cd6;">| </span><span style="background-color:#1e1e1e;color:#dcdcdc;">WS_EX_LAYERED
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">);
-</span><span style="background-color:#1e1e1e;color:#dcdcdc;">user32.SetLayeredWindowAttributes(handle, </span><span style="background-color:#1e1e1e;color:#b5cea8;">0</span><span style="background-color:#1e1e1e;color:#dcdcdc;">, opacity, LWA_ALPHA);
+<pre style="background-color:#1e1e1e;">
+<span style="color:#569cd6;">const </span><span style="color:#dcdcdc;">windowLong = user32.GetWindowLongA(handle, GWL_EXSTYLE);
+user32.SetWindowLongA(
+  handle, GWL_EXSTYLE, windowLong </span><span style="color:#569cd6;">| </span><span style="color:#dcdcdc;">WS_EX_LAYERED
+);
+user32.SetLayeredWindowAttributes(handle, </span><span style="color:#b5cea8;">0</span><span style="color:#dcdcdc;">, opacity, LWA_ALPHA);
 </span></pre>
 <p>Okay, fine. This needs a little bit of unpacking. <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms633584(v=vs.85).aspx"><code>GetWindowLongA</code></a> takes a window handle and returns the value associated with a given flag. In this case, I grabbed the extended styles bitmask assigned to the window. Next, I re-assign the extended styles value but add in the layered window bit flag. Finally, just assigned the opacity value to the layered window alpha attribute. That's it! Nothing too exotic going on here but this was a fun first dive into the Windows API.</p>
 <p>This was a pretty fast and fun project. What I really like about this project is this is something I now use all of the time. I even wrote a <a href="https://github.com/MCluck90/auto-win-opacity">little tool</a> to allow me to configure different kinds of windows to have different levels of opacity all the time. It runs on startup and my setup has never looked sweeter.</p>
