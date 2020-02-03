@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "file": "bundle.css",
+  "sources": [
+    "..\\..\\App.svelte"
+  ],
+  "sourcesContent": [
+    "<script>\nexport let genres = [];\nlet leftIndex = 0;\nlet rightIndex = 1;\nlet selection = '';\n$: faceoff = [genres[leftIndex], genres[rightIndex]]\n\nfunction handleClick(...args) {\n\tconst index = Number(this.getAttribute('data-index'))\n\tif (index === 0) {\n\t\trightIndex = rightIndex + 1;\n\t\tif (rightIndex <= leftIndex) {\n\t\t\trightIndex = leftIndex + 1;\n\t\t}\n\t} else {\n\t\tleftIndex = leftIndex + 1;\n\t\tif (leftIndex <= rightIndex) {\n\t\t\tleftIndex = rightIndex + 1;\n\t\t}\n\t}\n\n\tif (!genres[leftIndex] || !genres[rightIndex]) {\n\t\tselection = (!genres[leftIndex]) ? genres[rightIndex] : genres[leftIndex]\n\t}\n}\n</script>\n\n<main>\n\t<h1>What should I eat?</h1>\n\n\t{#if selection}\n\t\t<h2>You should get {selection}</h2>\n\t{/if}\n\n\t{#if !selection}\n\t\t<div class=\"choices\">\n\t\t\t{#each faceoff as genre, i}\n\t\t\t\t<button class=\"choice\" data-index={i} on:click={handleClick}>\n\t\t\t\t\t<h1>\n\t\t\t\t\t\t{genre}\n\t\t\t\t\t</h1>\n\t\t\t\t</button>\n\t\t\t{/each}\n\t\t</div>\n\t{/if}\n</main>\n\n<style>\n.choices {\n\tdisplay: flex;\n\talign-items: center;\n\tjustify-content: center;\n}\n.choice {\n\tdisplay: flex;\n\twidth: 200px;\n\theight: 200px;\n\tborder: solid 1px #000;\n\talign-items: center;\n\tjustify-content: center;\n}\n.choice:first-child {\n\tmargin-right: 2em;\n}\n</style>"
+  ],
+  "names": [],
+  "mappings": "AAgDA,QAAQ,eAAC,CAAC,AACT,OAAO,CAAE,IAAI,CACb,WAAW,CAAE,MAAM,CACnB,eAAe,CAAE,MAAM,AACxB,CAAC,AACD,OAAO,eAAC,CAAC,AACR,OAAO,CAAE,IAAI,CACb,KAAK,CAAE,KAAK,CACZ,MAAM,CAAE,KAAK,CACb,MAAM,CAAE,KAAK,CAAC,GAAG,CAAC,IAAI,CACtB,WAAW,CAAE,MAAM,CACnB,eAAe,CAAE,MAAM,AACxB,CAAC,AACD,sBAAO,YAAY,AAAC,CAAC,AACpB,YAAY,CAAE,GAAG,AAClB,CAAC"
+}
