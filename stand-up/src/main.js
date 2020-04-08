@@ -7,7 +7,6 @@ const main = async () => {
   const seed = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
   const rng = new Math.seedrandom(seed)
   const data = await loadData('ps-stand-up')
-  console.log(seed)
   data.sort(() => (rng() > 0.5 ? 1 : -1))
 
   for (const thing of data) {
