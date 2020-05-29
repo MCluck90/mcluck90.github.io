@@ -23,7 +23,7 @@ const shuffle = function (rng, array) {
 
 const main = async () => {
   const now = new Date()
-  const seed = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`
+  const seed = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`
   const rng = new Math.seedrandom(seed)
   const data = await loadData('ps-stand-up')
   shuffle(rng, data)
