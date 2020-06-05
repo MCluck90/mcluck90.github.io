@@ -11,7 +11,7 @@ document.querySelector('.toggle-theme').addEventListener('click', () => {
     if (lightThemeSheet) {
       lightThemeSheet.disabled = false
     }
-    localStorage.setItem('theme-preference', 'light')
+    localStorage['theme-preference'] = 'light'
   } else {
     html.classList.replace('light', 'dark')
     if (darkThemeSheet) {
@@ -20,6 +20,6 @@ document.querySelector('.toggle-theme').addEventListener('click', () => {
     if (lightThemeSheet) {
       lightThemeSheet.disabled = true
     }
-    localStorage.setItem('theme-preference', 'dark')
+    localStorage['theme-preference'] = 'dark'
   }
 })

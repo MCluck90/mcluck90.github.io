@@ -1,8 +1,8 @@
 // Setup light theme, if necessary
 const themePreference = window.localStorage.getItem('theme-preference')
 if (
-  window.matchMedia('(prefers-color-scheme: light)').matches ||
-  themePreference === 'light'
+  window.matchMedia('(prefers-color-scheme: light)').matches &&
+  themePreference !== 'dark'
 ) {
   document.querySelector('html').classList.replace('dark', 'light')
   const darkThemeSheet = document.head.querySelector('.dark-theme')
