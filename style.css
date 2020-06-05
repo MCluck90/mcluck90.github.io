@@ -1,0 +1,82 @@
+html,
+body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  display: flex;
+  width: 100%;
+  max-width: 970px;
+  margin: 0 auto;
+  margin-bottom: 2em;
+  border-bottom: solid 1px #fff;
+}
+.dark header {
+  border-bottom-color: #fff;
+}
+.light header {
+  border-bottom-color: #000;
+}
+header .right {
+  display: flex;
+  flex: 1;
+  align-self: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 0.5em;
+}
+
+main {
+  display: flex;
+  width: 100%;
+  max-width: 970px;
+  margin: 0 auto;
+}
+
+.main {
+  flex: 1;
+}
+.main > h2:first-child {
+  margin-top: 0;
+}
+
+.content-section {
+  padding-top: 0.01em;
+  padding-bottom: 0.01em;
+  border-radius: 8px;
+}
+.dark .content-section {
+  background: rgba(255, 255, 255, 0.13);
+}
+.light .content-section {
+  background: rgba(255, 255, 255, 0.87);
+}
+
+.content-section ul {
+  list-style: none;
+}
+
+.content-section h2 {
+  margin-bottom: 0;
+}
+
+.h-card {
+  flex: 0.2;
+  margin-right: 2em;
+}
+
+.u-photo {
+  display: inline-block;
+}
+.h-card a {
+  display: block;
+}
+
+.h-card pre {
+  text-align: left;
+  color: #444;
+}
+.h-card code {
+  font-size: 8pt;
+}

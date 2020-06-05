@@ -1,145 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
   <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116914548-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-116914548-1');
-    </script>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-
-    <!-- Enable responsiveness on mobile devices-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <title>Stuff and Things</title>
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck.tech&#x2F;print.css" media="print">
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck.tech&#x2F;poole.css">
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck.tech&#x2F;hyde.css">
-    <link rel="stylesheet" href="https:&#x2F;&#x2F;mcluck.tech&#x2F;custom.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
-
-    
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="https:&#x2F;&#x2F;mcluck.tech&#x2F;rss.xml">
-    
-
-    
-    
+    <link rel="stylesheet" href="theme.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="setup-theme.js"></script>
   </head>
+  <body>
+    <header>
+      <h1>Stuff and Things</h1>
+      <div class="right">
+        <button class="toggle-theme">
+          <img
+            src="/assets/theme-switcher.png"
+            width="32"
+            alt="Light by sugiart from the Noun Project"
+            title="Light by sugiart from the Noun Project"
+          />
+        </button>
+      </div>
+    </header>
 
-  <body class=" ">
-    
-      <div class="sidebar">
-        <div class="container sidebar-sticky">
-          <div class="sidebar-about">
-            
-              <a href="https:&#x2F;&#x2F;mcluck.tech"><h1>Stuff and Things</h1></a>
-              
-              <p class="lead">A descent into the mind of Mike Cluck</p>
-              
-            
-          </div>
+    <main>
+      <div class="h-card">
+        <img class="u-photo" width="48" height="48" src="/assets/my-face.jpg" />
+        <a class="p-name u-url" href="https://mcluck.tech">Mike Cluck</a>
+        <a href="https://github.com/MCluck90">Github</a>
+        <a href="https://stackoverflow.com/users/371184/mike-cluck">
+          Stack Overflow
+        </a>
+        <pre><code>// Email
+// const username = "mcluck90"
+// const host = "google.com"
+        </code></pre>
+      </div>
 
-          <ul class="sidebar-nav">
-            
-            
-            <li><a href="https:&#x2F;&#x2F;github.com&#x2F;MCluck90" rel="me">GitHub</a></li>
-            
-            <li><a href="https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;371184&#x2F;mike-c">Stack Overflow</a></li>
-            
-            <li><a href="https:&#x2F;&#x2F;twitter.com&#x2F;MikeCluck">Twitter</a></li>
-            
-            
+      <div class="main">
+        <h2>Blog Posts</h2>
+        <div class="content-section">
+          <ul>
+            <li>
+              <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;blog&#x2F;reduce-redux-boilerplate-with-lenses&#x2F;">
+                <h2>Reduce Redux Boilerplate with Lenses</h2>
+              </a>
+              <i>2019-11-05</i>
+            </li>
+            <li>
+              <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;blog&#x2F;how-i-made-windows-sexier&#x2F;">
+                <h2>How I Made Windows Sexier with Opacity</h2>
+              </a>
+              <i>2018-05-25</i>
+            </li>
+            <li>
+              <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;blog&#x2F;writing-something-on-the-side&#x2F;">
+                <h2>Writing something on the side</h2>
+              </a>
+              <i>2018-04-20</i>
+            </li>
+            <li>
+              <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;blog&#x2F;abusing-proxies-for-dsls&#x2F;">
+                <h2>Abusing Proxies for DSLs</h2>
+              </a>
+              <i>2018-04-05</i>
+            </li>
           </ul>
-          <pre>
-// Email
-const username = "mcluck90";
-const host = "google.com";
-          </pre>
+        </div>
+
+        <h2>Tools and Toys</h2>
+        <div class="content-section">
+          <ul>
+            <li>
+              <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;what-should-i-eat">
+                <h2>What Should I Eat?</h2>
+              </a>
+            </li>
+            <i></i>
+            <li>
+              <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;vision-demo">
+                <h2>Field of View Demo</h2>
+              </a>
+            </li>
+            <i></i>
+          </ul>
         </div>
       </div>
-    
+    </main>
 
-    <div class="content container">
-      
-        <div class="posts">
-          
-            
-              <div class="post">
-                <h1 class="post-title">
-                  <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;reduce-redux-boilerplate-with-lenses&#x2F;">
-                  Reduce Redux Boilerplate with Lenses
-                  </a>
-                </h1>
-
-                <span class="post-date">2019-11-05</span>
-              </div>
-            
-          
-            
-          
-            
-              <div class="post">
-                <h1 class="post-title">
-                  <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;how-i-made-windows-sexier&#x2F;">
-                  How I Made Windows Sexier with Opacity
-                  </a>
-                </h1>
-
-                <span class="post-date">2018-05-25</span>
-              </div>
-            
-          
-            
-              <div class="post">
-                <h1 class="post-title">
-                  <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;writing-something-on-the-side&#x2F;">
-                  Writing something on the side
-                  </a>
-                </h1>
-
-                <span class="post-date">2018-04-20</span>
-              </div>
-            
-          
-            
-              <div class="post">
-                <h1 class="post-title">
-                  <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;abusing-proxies-for-dsls&#x2F;">
-                  Abusing Proxies for DSLs
-                  </a>
-                </h1>
-
-                <span class="post-date">2018-04-05</span>
-              </div>
-            
-          
-        </div>
-      
-    </div>
-
-    <script>
-      // Toggle code snippets
-      document.addEventListener('click', function(event) {
-        var target = event.target;
-        if (!target.classList.contains('toggle-codeblock')) {
-          return;
-        }
-
-        var container = target.parentNode;
-        if (container.classList.contains('visible')) {
-          container.classList.remove('visible');
-        } else {
-          container.classList.add('visible');
-        }
-      });
-    </script>
-
+    <script src="theme-switcher.js"></script>
   </body>
-
 </html>

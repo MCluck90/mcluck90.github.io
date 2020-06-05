@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+    <link
+      rel="stylesheet"
+      href="/highlight.js.light.css"
+      class="light-theme"
+      disabled
+    />
+    <link
+      rel="stylesheet"
+      href="/highlight.js.dark.css"
+      class="dark-theme"
+    />
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/blog/main.css" />
+    <meta name="keywords" content="javascript,proxies,proxy,dsl,interpreter" />
+    <script src="/setup-theme.js"></script>
+    <title>Abusing Proxies for DSLs - Stuff and Things</title>
+  </head>
+  <body>
+    <header>
+      <h1>
+        <a href="https:&#x2F;&#x2F;mcluck.tech">Stuff and Things</a>
+      </h1>
+    </header>
+
+    <article class="h-entry">
+      <h1 class="p-name">Abusing Proxies for DSLs</h1>
+      <div class="article-header">
+        <div class="left">
+          <time class="dt-published" datetime="2018-04-05">2018-04-05</time>
+        </div>
+        <div class="right">
+          <a href="https:&#x2F;&#x2F;mcluck.tech&#x2F;blog&#x2F;abusing-proxies-for-dsls&#x2F;" class="u-url u-uid">Permalink</a>
+          <button class="toggle-theme">
+            <img
+              src="/assets/theme-switcher.png"
+              width="32"
+              alt="Light by sugiart from the Noun Project"
+              title="Light by sugiart from the Noun Project"
+            />
+          </button>
+        </div>
+      </div>
+      <div class="e-content">
+        
+<p><small><strong>Disclaimer:</strong> Writing code like this can lead to both the browser and your coworkers hating you. Code like this can be very difficult to test and is going to be slower than just writing code with good old-fashioned functions and sweat. Older browsers will not run this code at all. Consider yourself warned.</small></p>
+<!-- more -->
+<hr>
+<p><em>Spoiler alert: At the end of this article, we'll be able to solve FizzBuzz by writing this</em></p>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Spoiler</button></p>
+<pre><code class="hljs language-javascript">dsl.
+  set.i(<span class="hljs-number">1</span>).
+  set.isFizz(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x % <span class="hljs-number">3</span> === <span class="hljs-number">0</span>).
+  set.isBuzz(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x % <span class="hljs-number">5</span> === <span class="hljs-number">0</span>).
+  loop(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.i &lt;= <span class="hljs-number">100</span>, () =&gt;
+    dsl.
+      iff(
+        <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isFizz(dsl.i) &amp;&amp; dsl.isBuzz(dsl.i), () =&gt;
+          dsl.fizz.buzz,
+        () =&gt; dsl.isFizz(dsl.i), () =&gt;
+          dsl.fizzz,
+        () =&gt; dsl.isBuzz(dsl.i), () =&gt;
+          dsl.buzzz,
+        () =&gt; dsl.log(dsl.i)
+      ).
+      set.i(dsl.i + <span class="hljs-number">1</span>)
+  );
+</code></pre>
+</div>
+<hr>
+<p>One of my favorite past-times is stretching the edges of JavaScript. Writing inane things just because you can is a great way to ensure job security through obscurity. So put on your apron because the <em>Plat du jour</em> is Proxies.</p>
+<p>Proxies are a tool used for metaprogramming. They allow you to reach into common object operations, such as getting and setting properties, and make them do whatever you want. All it takes is wrapping an object in a call to <code>new Proxy</code> to open up a magical realm. You can read more at <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">MDN</a>.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> novice = {
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'Magnifico the Magician'</span>
+};
+<span class="hljs-keyword">let</span> magician = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>(novice, {
+  <span class="hljs-keyword">get</span>(wizard, prop) {
+    <span class="hljs-keyword">if</span> (prop === <span class="hljs-string">'hat'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-string">'rabbit'</span>;
+    }
+    <span class="hljs-keyword">return</span> wizard[prop];
+  }
+});
+
+magician.name; <span class="hljs-comment">// 'Magnifico the Magician'</span>
+magician.hat;  <span class="hljs-comment">// 'rabbit'</span>
+</code></pre>
+<p>Et voilà! That's real, working code. What we've done here is added a handler or &quot;trap&quot; for the <code>get</code> operation on an object. The handler is passed the object it's acting on (in this case, <code>novice</code> which we renamed to <code>wizard</code>) and the name of the property you're accessing. There's a lot more that you can hook into with proxies but today we're only going to use this part of them. However, using just this small part, we're going to make our own DSL or domain-specific language.</p>
+<p>Before we get too deep into it, we need a goal for our little language. As any programmer worth their salt knows, FizzBuzz is one of the great challenges of our era. While some &quot;scientists&quot; are wasting time optimizing door-to-door sales, we're going to design a language which allows us to solve the problem that has perplexed interviewers since the beginning of (Unix) time.</p>
+<h2>Write the chains that bind</h2>
+<p>No self-respecting DSL would require you to reference it all of the time. It doesn't need that kind of validation. That's why the first thing we need to do is allow our &quot;interpreter&quot; to chain. That means that every property access will return the original &quot;interpreter&quot;. Access the DSL once, always have access to it.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(_, prop) {
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+dsl.
+  it.just.keeps.going.
+  and.going.
+  and.going;
+</code></pre>
+<p>But we don't always have to return <code>dsl</code>. We could also return other values, such as functions. Normally, this would lead to a break in the chain and everything would come crashing down. However, as long as those functions return <code>dsl</code> then we can keep our chain going. With that, we've setup our little world so let's go say hi.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(_, prop) {
+    <span class="hljs-keyword">const</span> rule = grammar[prop];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-comment">// Pass along the DSL so we can continue chaining.</span>
+      <span class="hljs-comment">// We're passing an object because we intend to extend</span>
+      <span class="hljs-comment">// this later down the line.</span>
+      <span class="hljs-keyword">return</span> rule({ dsl });
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-comment">// I'm moving the different grammar rules into a separate object.</span>
+<span class="hljs-comment">// Helps keep things nice and clean</span>
+<span class="hljs-keyword">const</span> grammar = {
+  log({ dsl }) {
+    <span class="hljs-comment">// Check this out, we can return a function</span>
+    <span class="hljs-comment">// instead of the usual chaining</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-comment">// Now we reapply the chain after the function call</span>
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  log(<span class="hljs-string">'hello world'</span>).   <span class="hljs-comment">// 'hello world'</span>
+  log(<span class="hljs-string">'goodbye world'</span>); <span class="hljs-comment">// 'goodbye world'</span>
+</code></pre>
+<h2>Take a token or two</h2>
+<p>This is great and all but at this point, we just have a chained function. We could have done that without all of the song and dance surrounding proxies. What we want to do is create our own special statements and for that we need to process tokens. For those of you who don't know, a token is not just something you use to represent yourself in a board game or trade for a ride on a ferry. Tokens, in compiler vernacular, refer to the tiny bits that make up a language. Things like <code>if</code>, <code>i</code>, and <code>+</code>. Each individual &quot;word&quot; in a programming language (including operators, numbers, etc.) is a token. For our language, we want to be able to print out &quot;FizzBuzz&quot; so let's combine a few tokens to generate a statement which will do this for us.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(_, token) { <span class="hljs-comment">// &lt;-- Bam! No longer a property but a token</span>
+    tokens.push(token);
+    <span class="hljs-comment">// Minor deviation: we swapped `token` for `tokens[0]`</span>
+    <span class="hljs-comment">// We want to use the first token in the stream to match</span>
+    <span class="hljs-comment">// different rules since individual rules may require</span>
+    <span class="hljs-comment">// multiple tokens</span>
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-comment">// Here's a cool trick: we can tell it to only</span>
+      <span class="hljs-comment">// call the rule function if enough tokens</span>
+      <span class="hljs-comment">// have been added to the stream</span>
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-comment">// Pass along the tokens so we can modify them as needed</span>
+      <span class="hljs-keyword">return</span> rule({ dsl, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    <span class="hljs-comment">// Matched a statement, clear the token stream</span>
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) { ... }
+};
+
+dsl.
+  fizz.buzz. <span class="hljs-comment">// "FizzBuzz"</span>
+  fizz.buzz; <span class="hljs-comment">// "FizzBuzz"</span>
+</code></pre>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Full Code</button></p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(_, token) { <span class="hljs-comment">// &lt;-- Bam! No longer a property but a token</span>
+    tokens.push(token);
+    <span class="hljs-comment">// Minor deviation: we swapped `token` for `tokens[0]`</span>
+    <span class="hljs-comment">// We want to use the first token in the stream to match</span>
+    <span class="hljs-comment">// different rules since individual rules may require</span>
+    <span class="hljs-comment">// multiple tokens</span>
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-comment">// Here's a cool trick: we can tell it to only</span>
+      <span class="hljs-comment">// call the rule function if enough tokens</span>
+      <span class="hljs-comment">// have been added to the stream</span>
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-comment">// Pass along the tokens so we can modify them as needed</span>
+      <span class="hljs-keyword">return</span> rule({ dsl, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    <span class="hljs-comment">// Matched a statement, clear the token stream</span>
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) {
+    <span class="hljs-comment">// Matched a statement, clear the token stream</span>
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  fizz.buzz. <span class="hljs-comment">// "FizzBuzz"</span>
+  fizz.buzz; <span class="hljs-comment">// "FizzBuzz"</span>
+</code></pre>
+</div>
+<h2>Data is only a state of mind</h2>
+<p>We've got some essential groundwork taken care of so let's start actually building up a language. First things first, we need to be able to get and set values. No data means no program. We could just store all of our data using <code>let</code> or <code>const</code> (not <code>var</code>, fight me) but where's the fun in that? Instead, we're going to use that dummy object we've been wrapping up in a proxy as our state object. This also makes it easier to refer to values by name.</p>
+<p>I'll warn you in advance: I lied a little bit earlier. I said we'd only need to access <code>dsl</code> once to run our whole language. The reality is that we'll need to access it again for sub-expressions. I hope you'll forgive me.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(state, token) { <span class="hljs-comment">// &lt;-- Now we're wrapping around the state</span>
+    <span class="hljs-comment">// Before anything, we're going to try and access a variable</span>
+    <span class="hljs-keyword">if</span> (tokens.length === <span class="hljs-number">0</span> &amp;&amp; state[token] !== <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> state[token];
+    }
+
+    tokens.push(token);
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+
+      <span class="hljs-comment">// Need to pass along the state now</span>
+      <span class="hljs-keyword">return</span> rule({ dsl, state, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  <span class="hljs-comment">// Here's how we're going to assign values</span>
+  <span class="hljs-keyword">set</span>({ dsl, state, tokens }, identifier) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-comment">// `identifier` will give us the name of the variable</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+      <span class="hljs-comment">// Now we use a function so we can assign any value at all</span>
+      <span class="hljs-comment">// to our variable</span>
+      state[identifier] = value;
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+  ...
+};
+
+dsl.
+  set.mind(<span class="hljs-string">'empty'</span>).
+  log(dsl.mind). <span class="hljs-comment">// 'empty'</span>
+  <span class="hljs-keyword">set</span>.mind('full').
+  log(dsl.mind); // 'full'
+</code></pre>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Full Code</button></p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(state, token) { <span class="hljs-comment">// &lt;-- Now we're wrapping around the state</span>
+    <span class="hljs-comment">// Before anything, we're going to try and access a variable</span>
+    <span class="hljs-keyword">if</span> (tokens.length === <span class="hljs-number">0</span> &amp;&amp; state[token] !== <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> state[token];
+    }
+
+    tokens.push(token);
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-comment">// Need to pass along the state now</span>
+      <span class="hljs-keyword">return</span> rule({ dsl, state, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  <span class="hljs-comment">// Here's how we're going to assign values</span>
+  <span class="hljs-keyword">set</span>({ dsl, state, tokens }, identifier) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-comment">// `identifier` will give us the name of the variable</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+      <span class="hljs-comment">// Now we use a function so we can assign any value at all</span>
+      <span class="hljs-comment">// to our variable</span>
+      state[identifier] = value;
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  set.mind(<span class="hljs-string">'empty'</span>).
+  log(dsl.mind). <span class="hljs-comment">// 'empty'</span>
+  <span class="hljs-keyword">set</span>.mind('full').
+  log(dsl.mind); // 'full'
+</code></pre>
+</div>
+<p>Fun fact: we're done working on the <code>get</code> handler. Everything we need to build up and process our language is there. 20 lines of code is enough to process simple statements and expressions. Now we just have to write the actual rules of our language.</p>
+<h2>If and only if</h2>
+<p><code>if</code>. The great fork in the road. Used quadrillions of times (citation needed) and the only thing used in advanced artificial intelligence. If you're going to make a language, you need some way to change course based on the whims of the data. This is surprisingly easy to build into our language. We really just need a single statement that takes in two functions: one as the predicate (the thing which produces a boolean value) and one as the body (the thing that runs when the condition is true).</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> grammar = {
+  <span class="hljs-comment">// iff -&gt; "if and only if"</span>
+  iff({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">predicate, body</span>) =&gt;</span> {
+      <span class="hljs-keyword">if</span> (predicate()) {
+        body();
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+  ...
+};
+
+dsl.
+  set.isSkynet(<span class="hljs-literal">true</span>).
+  iff(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isSkynet, () =&gt;
+    dsl.log(<span class="hljs-string">'take over the world'</span>) <span class="hljs-comment">// 'take over the world'</span>
+  ).
+  iff(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> !dsl.isSkynet, () =&gt;
+    dsl.log(<span class="hljs-string">'not gonna happen'</span>)
+  );
+</code></pre>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Full Code</button></p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(state, token) {
+    <span class="hljs-comment">// Before anything, we're going to try and access a variable</span>
+    <span class="hljs-keyword">if</span> (tokens.length === <span class="hljs-number">0</span> &amp;&amp; state[token] !== <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> state[token];
+    }
+
+    tokens.push(token);
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-keyword">return</span> rule({ dsl, state, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  <span class="hljs-comment">// iff -&gt; "if and only if"</span>
+  iff({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">predicate, body</span>) =&gt;</span> {
+      <span class="hljs-keyword">if</span> (predicate()) {
+        body();
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  <span class="hljs-keyword">set</span>({ dsl, state, tokens }, identifier) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+      state[identifier] = value;
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  set.isSkynet(<span class="hljs-literal">true</span>).
+  iff(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isSkynet, () =&gt;
+    dsl.log(<span class="hljs-string">'take over the world'</span>) <span class="hljs-comment">// 'take over the world'</span>
+  ).
+  iff(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> !dsl.isSkynet, () =&gt;
+    dsl.log(<span class="hljs-string">'not gonna happen'</span>)
+  );
+</code></pre>
+</div>
+<p>But hey, we're computer scientists. We can make this a little smarter. Put on your brain pants because we're going to allow--wait for it--<code>else</code>. Not only that, but we're going to allow <code>else if</code> and it will all work in the same statement.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> grammar = {
+  <span class="hljs-comment">// iff -&gt; "if and only if"</span>
+  iff({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; args.length; i += <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">let</span> predicate = args[i];
+        <span class="hljs-keyword">let</span> body = args[i + <span class="hljs-number">1</span>];
+
+        <span class="hljs-comment">// If there's no body, this must be the `else` clause</span>
+        <span class="hljs-keyword">if</span> (!body) {
+          predicate();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+
+        <span class="hljs-keyword">if</span> (predicate()) {
+          body();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+  ...
+};
+
+dsl.
+  set.isSkynet(<span class="hljs-literal">false</span>).
+  set.isTerminator(<span class="hljs-literal">false</span>).
+  set.isSarahConnor(!dsl.isSkynet &amp;&amp; !dsl.isTerminator).
+  <span class="hljs-comment">// else-if</span>
+  iff(
+    <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isSkynet, () =&gt;
+      dsl.log(<span class="hljs-string">'take over the world'</span>),
+    () =&gt; dsl.isSarahConnor, () =&gt;
+      dsl.log(<span class="hljs-string">'destroy the Terminator'</span>)
+  ). <span class="hljs-comment">// 'destroy the Terminator'</span>
+  <span class="hljs-comment">// else</span>
+  iff(
+    <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isSkynet, () =&gt;
+      dsl.log(<span class="hljs-string">'take over the world'</span>),
+    () =&gt; dsl.isTerminator, () =&gt;
+      dsl.log(<span class="hljs-string">'destroy Sarah Connor'</span>),
+    () =&gt; dsl.log(<span class="hljs-string">'the world is safe'</span>)
+  ); <span class="hljs-comment">// 'the world is safe'</span>
+</code></pre>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Full Code</button></p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(state, token) {
+    <span class="hljs-comment">// Before anything, we're going to try and access a variable</span>
+    <span class="hljs-keyword">if</span> (tokens.length === <span class="hljs-number">0</span> &amp;&amp; state[token] !== <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> state[token];
+    }
+
+    tokens.push(token);
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-keyword">return</span> rule({ dsl, state, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  <span class="hljs-comment">// iff -&gt; "if and only if"</span>
+  iff({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; args.length; i += <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">let</span> predicate = args[i];
+        <span class="hljs-keyword">let</span> body = args[i + <span class="hljs-number">1</span>];
+
+        <span class="hljs-comment">// If there's no body, this must be the `else` clause</span>
+        <span class="hljs-keyword">if</span> (!body) {
+          predicate();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+
+        <span class="hljs-keyword">if</span> (predicate()) {
+          body();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  <span class="hljs-keyword">set</span>({ dsl, state, tokens }, identifier) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+      state[identifier] = value;
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  set.isSkynet(<span class="hljs-literal">false</span>).
+  set.isTerminator(<span class="hljs-literal">false</span>).
+  set.isSarahConnor(!dsl.isSkynet &amp;&amp; !dsl.isTerminator).
+  <span class="hljs-comment">// else-if</span>
+  iff(
+    <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isSkynet, () =&gt;
+      dsl.log(<span class="hljs-string">'take over the world'</span>),
+    () =&gt; dsl.isSarahConnor, () =&gt;
+      dsl.log(<span class="hljs-string">'destroy the Terminator'</span>)
+  ). <span class="hljs-comment">// 'destroy the Terminator'</span>
+  <span class="hljs-comment">// else</span>
+  iff(
+    <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isSkynet, () =&gt;
+      dsl.log(<span class="hljs-string">'take over the world'</span>),
+    () =&gt; dsl.isTerminator, () =&gt;
+      dsl.log(<span class="hljs-string">'destroy Sarah Connor'</span>),
+    () =&gt; dsl.log(<span class="hljs-string">'the world is safe'</span>)
+  ); <span class="hljs-comment">// 'the world is safe'</span>
+</code></pre>
+</div>
+<h2>Here we go loop-de-loop</h2>
+<p>A key component of the <em>FizzBuzz Conundrum</em><sup>1</sup> is the need to iterate over many values. For this I think, now stay with me here, we should use a loop. It seems impossible but I'm going to blow your mind a little bit. We're going to add looping and it's going to be super easy. You could write it yourself. Go ahead and think on it for a second.</p>
+<hr>
+<p>Yup, just like an <code>if</code> statement. It's pretty easy once you've got the essentials written.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> grammar = {
+  loop({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">predicate, body</span>) =&gt;</span> {
+      <span class="hljs-keyword">while</span> (predicate()) {
+        body();
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+  ...
+};
+
+dsl.
+  set.i(<span class="hljs-number">1</span>).
+  loop(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.i &lt;= <span class="hljs-number">10</span>, () =&gt;
+    dsl.
+      log(dsl.i). <span class="hljs-comment">// 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span>
+      <span class="hljs-keyword">set</span>.i(dsl.i + 1)
+  );
+</code></pre>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Full Code</button></p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(state, token) {
+    <span class="hljs-comment">// Before anything, we're going to try and access a variable</span>
+    <span class="hljs-keyword">if</span> (tokens.length === <span class="hljs-number">0</span> &amp;&amp; state[token] !== <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> state[token];
+    }
+
+    tokens.push(token);
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-keyword">return</span> rule({ dsl, state, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  loop({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">predicate, body</span>) =&gt;</span> {
+      <span class="hljs-keyword">while</span> (predicate()) {
+        body();
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  iff({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; args.length; i += <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">let</span> predicate = args[i];
+        <span class="hljs-keyword">let</span> body = args[i + <span class="hljs-number">1</span>];
+
+        <span class="hljs-comment">// If there's no body, this must be the `else` clause</span>
+        <span class="hljs-keyword">if</span> (!body) {
+          predicate();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+
+        <span class="hljs-keyword">if</span> (predicate()) {
+          body();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  <span class="hljs-keyword">set</span>({ dsl, state, tokens }, identifier) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+      state[identifier] = value;
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  set.i(<span class="hljs-number">1</span>).
+  loop(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.i &lt;= <span class="hljs-number">10</span>, () =&gt;
+    dsl.
+      log(dsl.i). <span class="hljs-comment">// 1, 2, 3, 4, 5, 6, 7, 8, 9, 10</span>
+      <span class="hljs-keyword">set</span>.i(dsl.i + 1)
+  );
+</code></pre>
+</div>
+<h2>The Grand Finale</h2>
+<p>This is the moment you've all been waiting for. We have all of the tools we need to write a solution to the insurmountable FizzBuzz problem. You've ascended this mountain with me, now it's time to place our flag. Just for <code>A E S T H E T I C</code> reasons, we're going to add a couple more statements to our language.</p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> grammar = {
+  fizzz({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    dsl.log(<span class="hljs-string">'Fizz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  buzzz({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    dsl.log(<span class="hljs-string">'Buzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+  ...
+};
+
+dsl.
+  set.i(<span class="hljs-number">1</span>).
+  set.isFizz(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x % <span class="hljs-number">3</span> === <span class="hljs-number">0</span>).
+  set.isBuzz(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x % <span class="hljs-number">5</span> === <span class="hljs-number">0</span>).
+  loop(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.i &lt;= <span class="hljs-number">100</span>, () =&gt;
+    dsl.
+      iff(
+        <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isFizz(dsl.i) &amp;&amp; dsl.isBuzz(dsl.i), () =&gt;
+          dsl.fizz.buzz,
+        () =&gt; dsl.isFizz(dsl.i), () =&gt;
+          dsl.fizzz,
+        () =&gt; dsl.isBuzz(dsl.i), () =&gt;
+          dsl.buzzz,
+        () =&gt; dsl.log(dsl.i)
+      ).
+      set.i(dsl.i + <span class="hljs-number">1</span>)
+  );
+</code></pre>
+<div class="hidden-codeblock">
+<p><button class="toggle-codeblock">Show/Hide Full Code</button></p>
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">let</span> tokens = [];
+<span class="hljs-keyword">let</span> dsl = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Proxy</span>({}, {
+  <span class="hljs-keyword">get</span>(state, token) {
+    <span class="hljs-comment">// Before anything, we're going to try and access a variable</span>
+    <span class="hljs-keyword">if</span> (tokens.length === <span class="hljs-number">0</span> &amp;&amp; state[token] !== <span class="hljs-literal">undefined</span>) {
+      <span class="hljs-keyword">return</span> state[token];
+    }
+
+    tokens.push(token);
+    <span class="hljs-keyword">const</span> rule = grammar[tokens[<span class="hljs-number">0</span>]];
+    <span class="hljs-keyword">if</span> (rule) {
+      <span class="hljs-keyword">if</span> (tokens.length !== rule.length) {
+        <span class="hljs-keyword">return</span> dsl;
+      }
+      <span class="hljs-keyword">return</span> rule({ dsl, state, tokens }, ...tokens.slice(<span class="hljs-number">1</span>));
+    }
+
+    <span class="hljs-comment">// No matching rule, just keep on chugging along</span>
+    <span class="hljs-keyword">return</span> dsl;
+  }
+});
+
+<span class="hljs-keyword">const</span> grammar = {
+  fizzz({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    dsl.log(<span class="hljs-string">'Fizz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  buzzz({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    dsl.log(<span class="hljs-string">'Buzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  loop({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">predicate, body</span>) =&gt;</span> {
+      <span class="hljs-keyword">while</span> (predicate()) {
+        body();
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  iff({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; args.length; i += <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">let</span> predicate = args[i];
+        <span class="hljs-keyword">let</span> body = args[i + <span class="hljs-number">1</span>];
+
+        <span class="hljs-comment">// If there's no body, this must be the `else` clause</span>
+        <span class="hljs-keyword">if</span> (!body) {
+          predicate();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+
+        <span class="hljs-keyword">if</span> (predicate()) {
+          body();
+          <span class="hljs-keyword">return</span> dsl;
+        }
+      }
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  <span class="hljs-keyword">set</span>({ dsl, state, tokens }, identifier) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">value</span>) =&gt;</span> {
+      state[identifier] = value;
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  },
+
+  fizz({ dsl, tokens }, buzz) {
+    <span class="hljs-keyword">if</span> (buzz !== <span class="hljs-string">'buzz'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">SyntaxError</span>(<span class="hljs-string">`Expected "buzz", got "<span class="hljs-subst">${buzz}</span>"`</span>);
+    }
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+
+    dsl.log(<span class="hljs-string">'FizzBuzz'</span>);
+    <span class="hljs-keyword">return</span> dsl;
+  },
+
+  log({ dsl, tokens }) {
+    tokens.splice(<span class="hljs-number">0</span>, tokens.length);
+    <span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> {
+      <span class="hljs-built_in">console</span>.log(...args);
+      <span class="hljs-keyword">return</span> dsl;
+    };
+  }
+};
+
+dsl.
+  set.i(<span class="hljs-number">1</span>).
+  set.isFizz(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x % <span class="hljs-number">3</span> === <span class="hljs-number">0</span>).
+  set.isBuzz(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x % <span class="hljs-number">5</span> === <span class="hljs-number">0</span>).
+  loop(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.i &lt;= <span class="hljs-number">100</span>, () =&gt;
+    dsl.
+      iff(
+        <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> dsl.isFizz(dsl.i) &amp;&amp; dsl.isBuzz(dsl.i), () =&gt;
+          dsl.fizz.buzz,
+        () =&gt; dsl.isFizz(dsl.i), () =&gt;
+          dsl.fizzz,
+        () =&gt; dsl.isBuzz(dsl.i), () =&gt;
+          dsl.buzzz,
+        () =&gt; dsl.log(dsl.i)
+      ).
+      set.i(dsl.i + <span class="hljs-number">1</span>)
+  );
+</code></pre>
+</div>
+<h2>Conclusion</h2>
+<p>And there we have it! Much to the joy of interviewers and computer scientists alike, we've successfully solved the elusive FizzBuzz problem. I'll be sure to include you as a contributor on the academic paper which will follow. You're ready to storm the doors of Apple, Microsoft, or Google and demand whatever salary you want.</p>
+<p>Oh yeah, we also learned a thing or two about proxies.</p>
+<hr>
+<p>Real talk: Why would you want to use this? I'm not sure. I could imagine proxies being useful for polyfills and perhaps for, exactly this, various DSLs. Could be a nice way of writing a SQL query generator or as a way of documenting business needs. If nothing else, it adds another tool to your belt and maybe you will find a much more useful application for this interesting bit of tech.</p>
+<hr>
+<small>
+References:
+<p>1: Cluck, Mike. <em>Fizzle and Buzz: The Problem of a Century</em>. Dijkstra &amp; Knuth, 20XX BC (Before Computing)
+</small></p>
+
+      </div>
+    </article>
+
+    <script src="/theme-switcher.js"></script>
+    <script src="/blog/main.js"></script>
+  </body>
+</html>

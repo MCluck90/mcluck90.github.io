@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+    <link
+      rel="stylesheet"
+      href="/highlight.js.light.css"
+      class="light-theme"
+      disabled
+    />
+    <link
+      rel="stylesheet"
+      href="/highlight.js.dark.css"
+      class="dark-theme"
+    />
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/blog/main.css" />
+    <meta name="keywords" content="{{ keywords }}" />
+    <script src="/setup-theme.js"></script>
+    <title>{{ title }} - Stuff and Things</title>
+  </head>
+  <body>
+    <header>
+      <h1>
+        <a href="{{ siteRoot }}">Stuff and Things</a>
+      </h1>
+    </header>
+
+    <article class="h-entry">
+      <h1 class="p-name">{{ title }}</h1>
+      <div class="article-header">
+        <div class="left">
+          <time class="dt-published" datetime="{{ date }}">{{ date }}</time>
+        </div>
+        <div class="right">
+          <a href="{{ permalink }}" class="u-url u-uid">Permalink</a>
+          <button class="toggle-theme">
+            <img
+              src="/assets/theme-switcher.png"
+              width="32"
+              alt="Light by sugiart from the Noun Project"
+              title="Light by sugiart from the Noun Project"
+            />
+          </button>
+        </div>
+      </div>
+      <div class="e-content">
+        {{{ post }}}
+      </div>
+    </article>
+
+    <script src="/theme-switcher.js"></script>
+    <script src="/blog/main.js"></script>
+  </body>
+</html>

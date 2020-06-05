@@ -1,0 +1,51 @@
+img {
+  max-width: 100%;
+}
+
+header {
+  max-width: 970px;
+  margin: 0 auto;
+  margin-bottom: 2em;
+}
+
+article {
+  padding: 0 4em 0 4em;
+  font-size: 13pt;
+  max-width: 970px;
+  margin: 0 auto;
+  margin-bottom: 2em;
+}
+@media (max-width: 970px) {
+  article {
+    padding: 0 2em 0 2em;
+  }
+}
+
+blockquote {
+  margin: 0;
+  padding: 0.25em 1em 0.25em 1em;
+}
+
+.article-header {
+  display: flex;
+  border-bottom: solid 2px #fff;
+  padding-bottom: 0.5em;
+}
+
+.article-header .left,
+.article-header .right {
+  flex: 1;
+}
+.article-header .right {
+  display: flex;
+  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+/* Allow for spoiler-style code sections */
+.hidden-codeblock > pre {
+  display: none;
+}
+.hidden-codeblock.visible > pre {
+  display: inherit;
+}

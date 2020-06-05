@@ -1,0 +1,106 @@
+@font-face {
+  font-family: 'Aileron';
+  src: url('/assets/aileron-light-webfont.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Cascadia Code';
+  src: url('/assets/CascadiaCode.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Wallpoet';
+  src: url('/assets/Wallpoet-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Prompt';
+  src: url('/assets/Prompt-Regular.ttf') format('truetype');
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'Prompt';
+}
+
+header h1 {
+  font-family: 'Wallpoet';
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Aileron';
+  background-color: #191919;
+  color: hsl(163, 30%, 96%);
+}
+
+a {
+  text-decoration: none;
+}
+
+code {
+  font-family: 'Cascadia Code', 'Fira Code Retina', monospace;
+  font-size: 10pt;
+}
+
+.toggle-theme {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 1em;
+  padding: 0;
+}
+.toggle-theme:focus {
+  outline: 0;
+}
+
+.toggle-theme img {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+/* Dark theme */
+.dark body {
+  background-color: #191919;
+  color: hsl(163, 30%, 96%);
+}
+
+.dark a {
+  color: #81c5ff;
+}
+
+.dark header a {
+  color: hsl(163, 30%, 96%);
+}
+
+.dark blockquote {
+  background: #31312b;
+}
+
+.dark .toggle-theme {
+  filter: invert(100%);
+}
+
+/* Light theme */
+.light body {
+  color: #000;
+  background-color: hsl(163, 30%, 96%);
+}
+
+.light a {
+  color: #0071d1;
+}
+
+.light header a {
+  color: #000;
+}
+
+.light blockquote {
+  background: #fffaec;
+}
