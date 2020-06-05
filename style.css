@@ -92,3 +92,24 @@ main {
 .h-card code {
   font-size: 8pt;
 }
+
+@media (max-width: 970px) {
+  main {
+    flex-direction: column;
+  }
+
+  header h1 {
+    margin-left: 1em;
+  }
+  header .right {
+    margin-right: 1em;
+  }
+
+  .h-card {
+    margin: 0 auto;
+  }
+
+  .main {
+    padding: 1em;
+  }
+}

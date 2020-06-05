@@ -15,11 +15,6 @@ article {
   margin: 0 auto;
   margin-bottom: 2em;
 }
-@media (max-width: 970px) {
-  article {
-    padding: 0 2em 0 2em;
-  }
-}
 
 blockquote {
   margin: 0;
@@ -54,4 +49,14 @@ blockquote {
 }
 .hidden-codeblock.visible > pre {
   display: inherit;
+}
+
+@media (max-width: 970px) {
+  header h1 {
+    margin-left: 1em;
+    margin-right: 1em;
+  }
+  article {
+    padding: 0 2em 0 2em;
+  }
 }
