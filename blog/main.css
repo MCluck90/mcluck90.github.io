@@ -31,6 +31,12 @@ blockquote {
   border-bottom: solid 2px #fff;
   padding-bottom: 0.5em;
 }
+.dark .article-header {
+  border-color: #aaffdd;
+}
+.light .article-header {
+  border-color: #000;
+}
 
 .article-header .left,
 .article-header .right {

@@ -14,7 +14,7 @@ header {
   border-bottom: solid 1px #fff;
 }
 .dark header {
-  border-bottom-color: #fff;
+  border-bottom-color: #aaffdd;
 }
 .light header {
   border-bottom-color: #000;
@@ -44,13 +44,25 @@ main {
 .content-section {
   padding-top: 0.01em;
   padding-bottom: 0.01em;
-  border-radius: 8px;
+  border: solid 1px #aaffdd;
+  clip-path: polygon(
+    /* top left */ 0% 0%,
+    /* top left */ 0% 0%,
+    /* top right */ 85% 0%,
+    /* top right */ 100% 35%,
+    /* bottom right */ 100% 100%,
+    /* bottom right */ 100% 100%,
+    /* bottom left */ 0% 100%,
+    /* bottom left */ 0 100%
+  );
 }
 .dark .content-section {
   background: rgba(255, 255, 255, 0.13);
+  border-color: #aaffdd;
 }
 .light .content-section {
   background: rgba(255, 255, 255, 0.87);
+  border-color: #000;
 }
 
 .content-section ul {
