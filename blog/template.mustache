@@ -24,17 +24,19 @@
     <script src="/setup-theme.js"></script>
     <title>{{ title }} - Stuff and Things</title>
   </head>
-  <body>
+  <body class="h-entry">
     <header>
       <h1>
-        <a rel="author" href="{{ siteRoot }}">Stuff and Things</a>
+        <a href="{{ siteRoot }}">Stuff and Things</a>
       </h1>
     </header>
 
-    <article class="h-entry">
+    <article>
       <h1 class="p-name">{{ title }}</h1>
       <div class="article-header">
         <div class="left">
+          <a rel="author" class="p-author h-card" href="{{ siteRoot }}">Mike Cluck</a>
+          -
           <time class="dt-published" datetime="{{ date }}">{{ date }}</time>
         </div>
         <div class="right">
