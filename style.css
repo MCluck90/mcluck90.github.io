@@ -49,11 +49,11 @@ main {
     /* top left */ 0% 0%,
     /* top left */ 0% 0%,
     /* top right */ 85% 0%,
-    /* top right */ 100% 35%,
-    /* bottom right */ 100% 100%,
-    /* bottom right */ 100% 100%,
+    /* top right */ 100% 40px,
+    /* bottom right */ 100% calc(100% - 40px),
+    /* bottom right */ 85% 100%,
     /* bottom left */ 0% 100%,
-    /* bottom left */ 0 100%
+    /* bottom left */ 0% 100%
   );
 }
 .dark .content-section {
@@ -69,7 +69,7 @@ main {
   list-style: none;
 }
 
-.content-section h2 {
+.content-section .title {
   margin-bottom: 0;
 }
 
