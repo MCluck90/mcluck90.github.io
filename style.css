@@ -107,9 +107,10 @@ main {
 
   .h-card {
     margin: 0 auto;
+    text-align: center;
   }
 
   .main {
-    padding: 1em;
+    padding: 0 1em;
   }
 }
