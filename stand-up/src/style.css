@@ -33,8 +33,14 @@ body {
   border-top: solid 2px #000;
 }
 
+.theme-switcher-container {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 2em;
+}
+
 .toggle-theme img {
-  width: 3em;
-  height: 3em;
+  width: 2em;
+  height: 2em;
   margin-top: 1em;
 }
