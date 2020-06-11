@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title><![CDATA[[Cluckware]]]></title>
+        <description><![CDATA[[Cluckware]]]></description>
+        <link>https://mcluck.tech</link>
+        <generator>RSS for Node</generator>
+        <lastBuildDate>Thu, 11 Jun 2020 14:12:51 GMT</lastBuildDate>
+        <atom:link href="https://mcluck.tech/feed.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[Reduce Redux Boilerplate with Lenses]]></title>
+            <description><![CDATA[Redux comes with a lot of boilerplate. Read about one approach to reducing how much you have to write.]]></description>
+            <link>https://mcluck.tech/blog/reduce-redux-boilerplate-with-lenses/</link>
+            <guid isPermaLink="true">https://mcluck.tech/blog/reduce-redux-boilerplate-with-lenses/</guid>
+            <pubDate>Tue, 05 Nov 2019 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[How I Made Windows Sexier with Opacity]]></title>
+            <description><![CDATA[I love tweaking the style of my environment. Here is how I added custom opacity settings to Windows.]]></description>
+            <link>https://mcluck.tech/blog/how-i-made-windows-sexier/</link>
+            <guid isPermaLink="true">https://mcluck.tech/blog/how-i-made-windows-sexier/</guid>
+            <pubDate>Fri, 25 May 2018 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Writing something on the side]]></title>
+            <description><![CDATA[The only way to get better at programming is by doing it.]]></description>
+            <link>https://mcluck.tech/blog/writing-something-on-the-side/</link>
+            <guid isPermaLink="true">https://mcluck.tech/blog/writing-something-on-the-side/</guid>
+            <pubDate>Fri, 20 Apr 2018 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Abusing Proxies for DSLs]]></title>
+            <description><![CDATA[Learn how to use proxies to write a DSL]]></description>
+            <link>https://mcluck.tech/blog/abusing-proxies-for-dsls/</link>
+            <guid isPermaLink="true">https://mcluck.tech/blog/abusing-proxies-for-dsls/</guid>
+            <pubDate>Thu, 05 Apr 2018 00:00:00 GMT</pubDate>
+        </item>
+    </channel>
+</rss>
