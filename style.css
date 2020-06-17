@@ -77,6 +77,11 @@ main {
 .h-card {
   flex: 0.2;
   margin-right: 2em;
+  height: 100%;
+  padding: 0.5em;
+}
+.light .h-card {
+  background-color: hsl(163, 30%, 96%);
 }
 
 .u-photo {
@@ -89,6 +94,7 @@ main {
 .h-card pre {
   text-align: left;
   color: #444;
+  margin: 0;
 }
 .h-card code {
   font-size: 8pt;

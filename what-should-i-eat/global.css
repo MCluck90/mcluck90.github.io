@@ -56,20 +56,44 @@ input[type='range'] {
   height: 0;
 }
 
-button {
-  color: #333;
-  background-color: #f4f4f4;
+header {
+  display: flex;
+  width: 100%;
+  max-width: 970px;
+  margin: 0 auto;
+  margin-bottom: 2em;
+  border-bottom: solid 1px #fff;
+}
+.dark header {
+  border-bottom-color: #aaffdd;
+}
+.light header {
+  border-bottom-color: #000;
+}
+header .right {
+  display: flex;
+  flex: 1;
+  align-self: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 0.5em;
+}
+
+main {
+  max-width: 970px;
+  margin: 0 auto;
+}
+
+.choices button {
   outline: none;
+  cursor: pointer;
 }
 
-button:disabled {
-  color: #999;
+.dark .choices button {
+  background: #191919;
+  color: #aaffdd;
 }
 
-button:not(:disabled):active {
-  background-color: #ddd;
-}
-
-button:focus {
-  border-color: #666;
+.light .choices button {
+  background: hsl(163, 30%, 96%);
+  color: #000;
 }
