@@ -58,7 +58,7 @@ main {
   );
 }
 .dark .content-section {
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(25, 25, 25, 0.7);
   border-color: #aaffdd;
 }
 .light .content-section {
@@ -82,6 +82,9 @@ main {
 }
 .light .h-card {
   background-color: hsl(163, 30%, 96%);
+}
+.dark .h-card {
+  background: rgba(25, 25, 25, 0.7);
 }
 
 .u-photo {

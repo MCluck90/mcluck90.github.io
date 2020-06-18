@@ -43,6 +43,16 @@ blockquote {
   justify-content: flex-end;
 }
 
+.e-content {
+  padding: 1em;
+}
+.dark .e-content {
+  background: #191919;
+}
+.light .e-content {
+  background: #fafbfa;
+}
+
 /* Allow for spoiler-style code sections */
 .hidden-codeblock > pre {
   display: none;
