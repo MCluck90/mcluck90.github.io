@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@700&display=swap');
 @font-face {
   font-family: 'Aileron';
   src: url('/assets/aileron-light-webfont.woff') format('woff');
@@ -14,8 +15,8 @@
 }
 
 @font-face {
-  font-family: 'Prompt';
-  src: url('/assets/Prompt-Regular.ttf') format('truetype');
+  font-family: 'Archivo';
+  src: url('/assets/Archivo-Bold.ttf') format('truetype');
 }
 
 h1,
@@ -23,7 +24,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: 'Prompt';
+  font-family: 'Archivo';
 }
 
 header h1 {
