@@ -11,13 +11,6 @@ body {
   box-sizing: border-box;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: 'Aileron';
-}
-
 a {
   color: rgb(0, 100, 200);
   text-decoration: none;
@@ -83,12 +76,17 @@ main {
   margin: 0 auto;
 }
 
+main h1 {
+  text-align: center;
+}
+
 .choices button {
   outline: none;
   cursor: pointer;
 }
 
 .dark .choices button {
+  border-radius: 5%;
   background: #191919;
   color: #aaffdd;
 }
