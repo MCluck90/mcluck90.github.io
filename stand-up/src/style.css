@@ -17,10 +17,13 @@ body {
   margin: 1em;
   border-bottom-style: solid;
   border-bottom-width: 2px;
+  margin: 0 auto;
+  max-width: 970px;
 }
 
 .dark #things .thing {
   border-bottom-color: #aaffdd;
+  background: rgba(25, 25, 25, 0.7);
 }
 .dark #things .thing:first-child {
   border-top: solid 2px #aaffdd;
@@ -28,6 +31,7 @@ body {
 
 .light #things .thing {
   border-bottom-color: #000;
+  background: hsl(163, 30%, 96%);
 }
 .light #things .thing:first-child {
   border-top: solid 2px #000;
