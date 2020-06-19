@@ -4,8 +4,29 @@
         <description><![CDATA[[Cluckware]]]></description>
         <link>https://mcluck.tech</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Thu, 18 Jun 2020 22:03:01 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 19 Jun 2020 14:43:34 GMT</lastBuildDate>
         <atom:link href="https://mcluck.tech/feed.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[What Should I Eat?]]></title>
+            <description><![CDATA[Update style to match new theme]]></description>
+            <link>https://mcluck.tech/what-should-i-eat</link>
+            <guid isPermaLink="true">https://mcluck.tech/what-should-i-eat</guid>
+            <pubDate>Wed, 17 Jun 2020 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[What Should I Eat?]]></title>
+            <description><![CDATA[Help find out what you feel like eating]]></description>
+            <link>https://mcluck.tech/what-should-i-eat</link>
+            <guid isPermaLink="true">https://mcluck.tech/what-should-i-eat</guid>
+            <pubDate>Fri, 05 Jun 2020 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[Field of View Demo]]></title>
+            <description><![CDATA[A demo of a 2D vision system]]></description>
+            <link>https://mcluck.tech/vision-demo</link>
+            <guid isPermaLink="true">https://mcluck.tech/vision-demo</guid>
+            <pubDate>Fri, 05 Jun 2020 00:00:00 GMT</pubDate>
+        </item>
         <item>
             <title><![CDATA[Reduce Redux Boilerplate with Lenses]]></title>
             <description><![CDATA[Redux comes with a lot of boilerplate. Read about one approach to reducing how much you have to write.]]></description>

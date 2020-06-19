@@ -1,0 +1,12 @@
+{
+  "title": "What Should I Eat?",
+  "description": "Help find out what you feel like eating",
+  "url": "https://mcluck.tech/what-should-i-eat",
+  "date": "2020-06-05",
+  "updates": [
+    {
+      "description": "Update style to match new theme",
+      "date": "2020-06-17"
+    }
+  ]
+}
