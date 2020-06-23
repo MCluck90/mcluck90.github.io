@@ -106,3 +106,23 @@ code {
 .light blockquote {
   background: #fffaec;
 }
+
+.dark body::-webkit-scrollbar {
+  width: 0.75em;
+}
+
+.dark body::-webkit-scrollbar-thumb {
+  border-radius: 0.5em;
+  background: #000;
+  border: solid 1px #afd;
+}
+
+.light body::-webkit-scrollbar {
+  width: 0.75em;
+}
+
+.light body::-webkit-scrollbar-thumb {
+  border-radius: 0.5em;
+  background: #fff;
+  border: solid 1px #000;
+}
