@@ -38,6 +38,7 @@ body {
   padding: 0;
   font-family: 'Aileron';
   color: hsl(163, 30%, 96%);
+  background-attachment: fixed;
 }
 
 a {
