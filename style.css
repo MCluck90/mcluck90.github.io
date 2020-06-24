@@ -38,8 +38,14 @@ main {
 .main {
   flex: 1;
 }
-.main > h2:first-child {
-  margin-top: 0;
+.main > h2 {
+  margin-top: 1.5em;
+}
+
+@media (min-width: 970px) {
+  .main > h2:first-child {
+    margin-top: 0;
+  }
 }
 
 .content-section {

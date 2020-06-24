@@ -45,6 +45,7 @@ blockquote {
 
 .e-content {
   padding: 1em;
+  line-height: 1.5;
 }
 .dark .e-content {
   background: #191919;
