@@ -33,12 +33,9 @@ header {
   margin: 0 auto;
   margin-bottom: 2em;
   border-bottom: solid 1px #fff;
-}
-.dark header {
+  background: #0c0c0c;
+  color: hsl(163, 30%, 96%);
   border-bottom-color: #aaffdd;
-}
-.light header {
-  border-bottom-color: #000;
 }
 header .right {
   display: flex;
@@ -99,19 +96,11 @@ code {
   color: #81c5ff;
 }
 
-.dark header {
-  background: #0c0c0c;
-}
-
-.dark header a {
-  color: hsl(163, 30%, 96%);
-}
-
 .dark blockquote {
   background: #31312b;
 }
 
-.dark .toggle-theme {
+.toggle-theme {
   filter: invert(100%);
 }
 

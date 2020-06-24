@@ -92,6 +92,9 @@ main {
     flex-direction: column;
   }
 
+  header {
+    margin-bottom: 0;
+  }
   header h1 {
     margin-left: 1em;
   }
@@ -100,8 +103,12 @@ main {
   }
 
   .h-card {
-    margin: 0 auto;
     text-align: center;
+    width: 100%;
+  }
+  .h-card pre {
+    max-width: 190px;
+    margin: 0 auto;
   }
 
   .main {
