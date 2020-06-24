@@ -7,7 +7,6 @@ body {
 
 body {
   margin: 0;
-  padding: 8px;
   box-sizing: border-box;
 }
 
@@ -52,7 +51,6 @@ input[type='range'] {
 header {
   display: flex;
   width: 100%;
-  max-width: 970px;
   margin: 0 auto;
   margin-bottom: 2em;
   border-bottom: solid 1px #fff;

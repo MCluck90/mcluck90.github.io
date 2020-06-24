@@ -2,12 +2,6 @@ img {
   max-width: 100%;
 }
 
-header {
-  max-width: 970px;
-  margin: 0 auto;
-  margin-bottom: 2em;
-}
-
 article {
   padding: 0 4em 0 4em;
   font-size: 13pt;

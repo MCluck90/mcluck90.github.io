@@ -6,28 +6,6 @@ body {
   padding-bottom: 1em;
 }
 
-header {
-  display: flex;
-  width: 100%;
-  max-width: 970px;
-  margin: 0 auto;
-  margin-bottom: 2em;
-  border-bottom: solid 1px #fff;
-}
-.dark header {
-  border-bottom-color: #aaffdd;
-}
-.light header {
-  border-bottom-color: #000;
-}
-header .right {
-  display: flex;
-  flex: 1;
-  align-self: flex-end;
-  justify-content: flex-end;
-  margin-bottom: 0.5em;
-}
-
 main {
   display: flex;
   width: 100%;

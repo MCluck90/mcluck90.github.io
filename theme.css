@@ -24,11 +24,33 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: 'Archivo';
+  font-family: 'Archivo', sans-serif;
+}
+
+header {
+  display: flex;
+  width: 100%;
+  margin: 0 auto;
+  margin-bottom: 2em;
+  border-bottom: solid 1px #fff;
+}
+.dark header {
+  border-bottom-color: #aaffdd;
+}
+.light header {
+  border-bottom-color: #000;
+}
+header .right {
+  display: flex;
+  flex: 1;
+  align-self: flex-end;
+  justify-content: flex-end;
+  margin-bottom: 0.5em;
 }
 
 header h1 {
-  font-family: 'Wallpoet';
+  font-family: 'Wallpoet', sans-serif;
+  margin-left: 1em;
 }
 
 body {
@@ -36,8 +58,8 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Aileron';
-  color: hsl(163, 30%, 96%);
+  font-family: 'Aileron', sans-serif;
+  color: #e6e6e6;
   background-attachment: fixed;
 }
 
@@ -54,7 +76,7 @@ code {
   background: transparent;
   border: none;
   cursor: pointer;
-  margin-left: 1em;
+  margin: 0 1em;
   padding: 0;
 }
 .toggle-theme:focus {
@@ -75,6 +97,10 @@ code {
 
 .dark a {
   color: #81c5ff;
+}
+
+.dark header {
+  background: #0c0c0c;
 }
 
 .dark header a {
