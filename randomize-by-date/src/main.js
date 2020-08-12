@@ -46,12 +46,12 @@ const main = async () => {
     createThing('Must provide a URL to a JSON endpoint or a string of JSON')
     const urlExampleLink = document.createElement('a')
     urlExampleLink.href =
-      '/sort-by-date/?data=https://gist.githubusercontent.com/MCluck90/4b801835d0a08d983cf16dac775f2ea0/raw/52fceeafaddea1ba4d6e2150c1dc5207fc6f6332/people.json'
+      '/randomize-by-date/?data=https://gist.githubusercontent.com/MCluck90/4b801835d0a08d983cf16dac775f2ea0/raw/52fceeafaddea1ba4d6e2150c1dc5207fc6f6332/people.json'
     urlExampleLink.innerText = 'Example of using a URL'
     createThing(urlExampleLink)
 
     const jsonExampleLink = document.createElement('a')
-    jsonExampleLink.href = '/sort-by-date/?data=["A","B","C"]'
+    jsonExampleLink.href = '/randomize-by-date/?data=["A","B","C"]'
     jsonExampleLink.innerText = 'Example of using JSON'
     createThing(jsonExampleLink)
     return
