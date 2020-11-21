@@ -172,7 +172,7 @@
 					<div class="tsd-signature tsd-kind-icon">digit<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = regexp(/\d/y, &#x27;a digit&#x27;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L19">src/numbers.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L19">src/numbers.ts:19</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -188,7 +188,7 @@
 					<div class="tsd-signature tsd-kind-icon">exponent<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = regexp(/[eE]/y).concat(maybeWithDefault(sign, &#x27;&#x27;)).concat(regexp(/\d+/y))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L70">src/numbers.ts:70</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L70">src/numbers.ts:70</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -204,7 +204,7 @@
 					<div class="tsd-signature tsd-kind-icon">floating<wbr>Point<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = integer.concat(fraction).concat(maybeWithDefault(exponent, &#x27;&#x27;)).map(Number)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L90">src/numbers.ts:90</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L90">src/numbers.ts:90</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -220,7 +220,7 @@
 					<div class="tsd-signature tsd-kind-icon">fraction<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = text(&#x27;.&#x27;).concat(maybeWithDefault(regexp(/\d+/y), &#x27;&#x27;))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L81">src/numbers.ts:81</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L81">src/numbers.ts:81</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -236,7 +236,7 @@
 					<div class="tsd-signature tsd-kind-icon">integer<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = regexp(/0|[1-9][0-9]*/y, &#x27;an integer&#x27;).map(Number)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L28">src/numbers.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L28">src/numbers.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -252,7 +252,7 @@
 					<div class="tsd-signature tsd-kind-icon">separated<wbr>Floating<wbr>Point<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = separatedInteger.concat(fraction).concat(maybeWithDefault(exponent, &#x27;&#x27;)).map(Number)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L113">src/numbers.ts:113</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L113">src/numbers.ts:113</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -268,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">separated<wbr>Integer<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = regexp(/0|[1-9][0-9_]*/y).map((d) &#x3D;&gt;Number(d.replace(/_/g, &#x27;&#x27;)))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L48">src/numbers.ts:48</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L48">src/numbers.ts:48</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -284,7 +284,7 @@
 					<div class="tsd-signature tsd-kind-icon">sign<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = regexp(/[+-]/y, &#x27;+ or -&#x27;)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L10">src/numbers.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L10">src/numbers.ts:10</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -300,7 +300,7 @@
 					<div class="tsd-signature tsd-kind-icon">signed<wbr>Floating<wbr>Point<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = maybeWithDefault(sign, &#x27;&#x27;).concat(floatingPoint).map(Number)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L102">src/numbers.ts:102</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L102">src/numbers.ts:102</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -316,7 +316,7 @@
 					<div class="tsd-signature tsd-kind-icon">signed<wbr>Integer<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = maybeWithDefault(sign, &#x27;&#x27;).concat(integer).map(Number)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L37">src/numbers.ts:37</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L37">src/numbers.ts:37</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -332,7 +332,7 @@
 					<div class="tsd-signature tsd-kind-icon">signed<wbr>Separated<wbr>Floating<wbr>Point<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = maybeWithDefault(sign, &#x27;&#x27;).concat(separatedFloatingPoint).map(Number)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L125">src/numbers.ts:125</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L125">src/numbers.ts:125</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -348,7 +348,7 @@
 					<div class="tsd-signature tsd-kind-icon">signed<wbr>Separated<wbr>Integer<span class="tsd-signature-symbol">:</span> <a href="../classes/_parser_.parser.html" class="tsd-signature-type">Parser</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = maybeWithDefault(sign, &#x27;&#x27;).concat(separatedInteger).map((d) &#x3D;&gt; Number(d.replace(/_/g, &#x27;&#x27;)))</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/72ee07f/src/numbers.ts#L59">src/numbers.ts:59</a></li>
+							<li>Defined in <a href="https://github.com/MCluck90/parsnip-ts/blob/1c5887b/src/numbers.ts#L59">src/numbers.ts:59</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
