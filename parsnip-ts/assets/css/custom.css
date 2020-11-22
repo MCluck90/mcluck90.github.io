@@ -20,6 +20,10 @@ pre {
   padding-bottom: 2em;
 }
 
+.col-menu {
+  max-width: 20em;
+}
+
 a,
 .tsd-breadcrumb code a,
 .tsd-navigation a {
