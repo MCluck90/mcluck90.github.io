@@ -32,6 +32,15 @@ const main = async () => {
     const el = document.createElement('h4')
     el.innerText = thing
     el.className = 'thing'
+
+    const removeButton = document.createElement('button')
+    removeButton.innerText = 'Remove'
+    removeButton.className = 'remove'
+    el.appendChild(removeButton)
+
+    removeButton.addEventListener('click', function () {
+      thingsEl.removeChild(el)
+    })
     thingsEl.appendChild(el)
   }
 }
