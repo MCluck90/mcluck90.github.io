@@ -33,12 +33,12 @@ const main = async () => {
     el.innerText = thing
     el.className = 'thing'
 
-    const removeButton = document.createElement('button')
-    removeButton.innerText = 'Remove'
-    removeButton.className = 'remove'
-    el.appendChild(removeButton)
+    const notHereButton = document.createElement('button')
+    notHereButton.innerText = 'Not Here'
+    notHereButton.className = 'not-here'
+    el.appendChild(notHereButton)
 
-    removeButton.addEventListener('click', function () {
+    notHereButton.addEventListener('click', function () {
       thingsEl.removeChild(el)
     })
     thingsEl.appendChild(el)
