@@ -30,6 +30,11 @@ const createThing = content => {
   } else {
     el.innerText = content
   }
+
+  const removeButton = document.createElement('button')
+  removeButton.innerText = 'Remove'
+  removeButton.className = 'remove'
+  el.appendChild(removeButton)
   itemsEl.appendChild(el)
 }
 
