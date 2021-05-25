@@ -22,6 +22,9 @@ const shuffle = function (rng, array) {
 }
 
 const main = async () => {
+  // Clear out all things
+  thingsEl.innerHTML = ''
+
   const now = new Date()
   const seed = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`
   const rng = new Math.seedrandom(seed)
@@ -46,3 +49,15 @@ const main = async () => {
 }
 
 main()
+
+const sixHours = 6 * 60 * 60 * 1000
+let prev = new Date()
+setTimeout(function refresh() {
+  const now = new Date()
+  if (prev.getDate() !== now.getDate()) {
+    main()
+  }
+
+  prev = now
+  setTimeout(refresh, sixHours)
+}, sixHours) // Once every 6 hours
