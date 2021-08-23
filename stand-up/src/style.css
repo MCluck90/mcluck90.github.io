@@ -52,3 +52,17 @@ body {
 .not-here {
   float: right;
 }
+
+#add-to-list-container {
+  width: 100%;
+  max-width: 970px;
+  margin: 0 auto;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.dark #add-to-list-input {
+  background-color: #222;
+  color: hsl(163, 30%, 96%);
+  border: solid 1px #aaffdd;
+}

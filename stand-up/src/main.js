@@ -21,14 +21,22 @@ const shuffle = function (rng, array) {
   return array
 }
 
+let data = []
 const main = async () => {
+  data = await loadData('ps-stand-up')
+  resetAndShuffle()
+}
+
+const resetAndShuffle = () => {
   // Clear out all things
   thingsEl.innerHTML = ''
 
   const now = new Date()
   const seed = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`
   const rng = new Math.seedrandom(seed)
-  const data = await loadData('ps-stand-up')
+
+  // Filter out people who are temporarily out
+  data = data.filter(name => !name.startsWith('//'))
   shuffle(rng, data)
 
   for (const thing of data) {
@@ -49,6 +57,29 @@ const main = async () => {
 }
 
 main()
+
+const addToListInputEl = document.getElementById('add-to-list-input')
+const addPersonToList = () => {
+  const name = addToListInputEl.value.trim()
+  if (!name) {
+    return
+  }
+
+  data.push(name)
+  data.sort((a, b) => a.localeCompare(b))
+  addToListInputEl.value = ''
+  resetAndShuffle()
+}
+
+addToListInputEl.addEventListener('keydown', event => {
+  if (event.key === 'Enter') {
+    addPersonToList()
+  }
+})
+
+document
+  .getElementById('add-to-list')
+  .addEventListener('click', addPersonToList)
 
 const sixHours = 6 * 60 * 60 * 1000
 let prev = new Date()
