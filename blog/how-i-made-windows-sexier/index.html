@@ -66,7 +66,7 @@
 <p>I knew in a general sense that Windows supported transparency since, for example, my taskbar is transparent. But it hadn't occurred to me that arbitrary windows could be made to be transparent. Thus, I made it my goal in life (or at least for the week) to discover how the wizard named <a href="https://github.com/SkaceKamen">SkaceKamen</a> had performed this magic and invoke the incantations myself. The end result is a general library that I posted named, rather imaginatively, <a href="https://github.com/MCluck90/win-opacity-js">win-opacity</a>.</p>
 <h2>How did they do it?</h2>
 <p>The source code for the original extension proved useful. I was able to copy out certain sections and get a micro-demo going really quickly. But I wanted to really understand how it works and that required me to take a foray into the Windows API. Before I could do that, I needed to learn a thing or two about <a href="https://en.wikipedia.org/wiki/Foreign_function_interface">foreign function interfaces (FFI)</a>. A foreign function interface is, for my purposes, a way to call into functionality that exists outside of the language you're writing in. For example, calling into a C API from JavaScript. Luckily for me, this is pretty easy to do with <a href="https://github.com/node-ffi/node-ffi">node-ffi</a>. Hooking into a native API is as simple as</p>
-<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> ffi = <span class="hljs-built_in">require</span>(<span class="hljs-string">'ffi'</span>);
+<pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> ffi = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;ffi&#x27;</span>);
 <span class="hljs-keyword">const</span> lib = ffi.Library(nameOfLibrary, {
   <span class="hljs-attr">NameOfFunction</span>: [
     returnType,
@@ -86,8 +86,8 @@ user32.EnumWindows(<span class="hljs-function">(<span class="hljs-params">handle
 </code></pre>
 <p>However, it needs to be wrapped up in a way that works with the FFI layer. Something like this:</p>
 <pre><code class="hljs language-javascript"><span class="hljs-keyword">const</span> enumWindowsCallback = ffi.Callback(
-  <span class="hljs-string">'bool'</span>, <span class="hljs-comment">// Return type</span>
-  [<span class="hljs-string">'long'</span>, <span class="hljs-string">'int32'</span>], <span class="hljs-comment">// Parameter types</span>
+  <span class="hljs-string">&#x27;bool&#x27;</span>, <span class="hljs-comment">// Return type</span>
+  [<span class="hljs-string">&#x27;long&#x27;</span>, <span class="hljs-string">&#x27;int32&#x27;</span>], <span class="hljs-comment">// Parameter types</span>
   <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">handle, _</span>) </span>{
     ...
   }

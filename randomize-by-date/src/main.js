@@ -34,6 +34,9 @@ const createThing = content => {
   const removeButton = document.createElement('button')
   removeButton.innerText = 'Remove'
   removeButton.className = 'remove'
+  removeButton.addEventListener('click', () => {
+    el.parentNode.removeChild(el)
+  })
   el.appendChild(removeButton)
   itemsEl.appendChild(el)
 }
@@ -42,7 +45,11 @@ const loadData = () => {
   try {
     return Promise.resolve(JSON.parse(dataParam))
   } catch {
-    return fetch(dataParam).then(resp => resp.json())
+    try {
+      return Promise.resolve(JSON.parse(decodeURIComponent(dataParam)))
+    } catch {
+      return fetch(dataParam).then(resp => resp.json())
+    }
   }
 }
 

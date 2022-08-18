@@ -65,36 +65,36 @@
 <p>When working with Redux, it's in our best interest to keep everything immutable. Having an immutable state is what allows for things like time-travel debugging and helps make the app more predictable. To keep everything immutable, we frequently end up writing reducers that look like this:</p>
 <pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> gameReducer = <span class="hljs-function">(<span class="hljs-params">state: State, action: Action</span>) =&gt;</span> {
   <span class="hljs-keyword">switch</span> (action.type) {
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'UPDATE_PLAYER_SCORE'</span>:
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;UPDATE_PLAYER_SCORE&#x27;</span>:
       <span class="hljs-keyword">return</span> {
         ...state,
-        playerScore: action.payload
+        <span class="hljs-attr">playerScore</span>: action.payload
       }
-    <span class="hljs-keyword">default</span>:
+    <span class="hljs-attr">default</span>:
       <span class="hljs-keyword">return</span> state;
   }
 }
 </code></pre>
 <p>That little <code>{ ...state, playerScore: action.payload }</code> is essentially what a lens does when setting a value. The difference is that it works all the way down. Where as before you might write either a series of reducers:</p>
 <pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> stateReducer = combineReducers({
-  player: combineReducers({
-    position: playerPositionReducer,
-    score: playerScoreReducer
+  <span class="hljs-attr">player</span>: combineReducers({
+    <span class="hljs-attr">position</span>: playerPositionReducer,
+    <span class="hljs-attr">score</span>: playerScoreReducer
   })
 })
 </code></pre>
 <p>or a single reducer with a bunch of nested spread operations:</p>
 <pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> stateReducer = <span class="hljs-function">(<span class="hljs-params">state: State, action: Action</span>) =&gt;</span> {
   <span class="hljs-keyword">switch</span> (action.type) {
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'UPDATE_PLAYER_SCORE'</span>:
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;UPDATE_PLAYER_SCORE&#x27;</span>:
       <span class="hljs-keyword">return</span> {
         ...state,
-        player: {
+        <span class="hljs-attr">player</span>: {
           ...state.player,
-          score: action.payload
+          <span class="hljs-attr">score</span>: action.payload
         }
       }
-    <span class="hljs-keyword">default</span>:
+    <span class="hljs-attr">default</span>:
       <span class="hljs-keyword">return</span> state;
   }
 }
@@ -102,7 +102,7 @@
 <p>you can perform that entire operation with a single lens:</p>
 <pre><code class="hljs language-js"><span class="hljs-keyword">const</span> stateReducer = <span class="hljs-function">(<span class="hljs-params">state: State, action: Action</span>) =&gt;</span> {
   <span class="hljs-keyword">switch</span> (action.type) {
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'UPDATE_PLAYER_SCORE'</span>:
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;UPDATE_PLAYER_SCORE&#x27;</span>:
       <span class="hljs-keyword">return</span> playerScoreLens.set(action.payload)
     <span class="hljs-attr">default</span>:
       <span class="hljs-keyword">return</span> state;
@@ -112,19 +112,19 @@
 <p>and it's all still immutable! Now you might be thinking &quot;but now I have to write all of these lenses!&quot; You're right but it's easier than you might think.</p>
 <h2>Composability</h2>
 <p>If you've ever used <a href="https://github.com/reduxjs/reselect"><code>reselect</code></a> before you'll know how nice it is to compose together selectors. You write one selector to get a section of the state tree then compose smaller selectors based off of that one. With lenses, you can get the same kind of composability.</p>
-<pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> playerLens = Lens.fromProp&lt;State&gt;()(<span class="hljs-string">'player'</span>)
+<pre><code class="hljs language-ts"><span class="hljs-keyword">const</span> playerLens = Lens.fromProp&lt;State&gt;()(<span class="hljs-string">&#x27;player&#x27;</span>)
 <span class="hljs-keyword">const</span> playerPositionLens = playerLens
-  .compose(Lens.fromProp&lt;State[<span class="hljs-string">'player'</span>]&gt;()(<span class="hljs-string">'position'</span>))
+  .compose(Lens.fromProp&lt;State[<span class="hljs-string">&#x27;player&#x27;</span>]&gt;()(<span class="hljs-string">&#x27;position&#x27;</span>))
 <span class="hljs-keyword">const</span> playerScoreLens = playerLens
-  .compose(Lens.fromProp&lt;State[<span class="hljs-string">'player'</span>]&gt;()(<span class="hljs-string">'score'</span>))
+  .compose(Lens.fromProp&lt;State[<span class="hljs-string">&#x27;player&#x27;</span>]&gt;()(<span class="hljs-string">&#x27;score&#x27;</span>))
 </code></pre>
 <h2>No More Reducers?</h2>
 <p>Each of the lenses we write that are composed together from the root of the state produce a new state value whenever a setter is called. That means that every lens you write is a self-contained reducer. If each of these lenses is a reducer then how do we handle actions? Quite simply, by only having a single action.</p>
 <p>With one action and one reducer you can hook up your entire Redux store. The One True Action will send out an entire state transformation.</p>
 <pre><code class="hljs language-ts"><span class="hljs-comment">// The One True Action</span>
 <span class="hljs-keyword">const</span> updateState = <span class="hljs-function">(<span class="hljs-params">state: State</span>) =&gt;</span> ({
-  <span class="hljs-keyword">type</span>: <span class="hljs-string">'UPDATE_STATE'</span>,
-  payload: state
+  <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;UPDATE_STATE&#x27;</span>,
+  <span class="hljs-attr">payload</span>: state
 })
 
 ...
@@ -132,7 +132,7 @@
 <span class="hljs-comment">// The One True Reducer</span>
 <span class="hljs-keyword">const</span> stateReducer = <span class="hljs-function">(<span class="hljs-params">state: State, action: Action</span>) =&gt;</span> {
   <span class="hljs-keyword">switch</span> (action.type) {
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'UPDATE_STATE'</span>:
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;UPDATE_STATE&#x27;</span>:
       <span class="hljs-keyword">return</span> action.payload;
     <span class="hljs-keyword">default</span>:
       <span class="hljs-keyword">return</span> state;
