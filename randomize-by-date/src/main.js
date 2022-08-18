@@ -74,6 +74,7 @@ const main = async () => {
     const seed = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`
     const rng = new Math.seedrandom(seed)
     const data = await loadData()
+    data.sort((a, b) => a.localeCompare(b))
     shuffle(rng, data)
 
     for (const item of data) {
