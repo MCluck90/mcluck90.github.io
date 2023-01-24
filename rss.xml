@@ -4,7 +4,7 @@
         <description><![CDATA[[Cluckware]]]></description>
         <link>https://mcluck.tech</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Thu, 18 Aug 2022 14:06:59 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 24 Jan 2023 13:35:43 GMT</lastBuildDate>
         <atom:link href="https://mcluck.tech/feed.xml" rel="self" type="application/rss+xml"/>
         <item>
             <title><![CDATA[What Should I Eat?]]></title>
@@ -35,10 +35,10 @@
             <pubDate>Tue, 05 Nov 2019 00:00:00 GMT</pubDate>
         </item>
         <item>
-            <title><![CDATA[How I Made Windows Sexier with Opacity]]></title>
+            <title><![CDATA[How I Made Windows Cooler with Opacity]]></title>
             <description><![CDATA[I love tweaking the style of my environment. Here is how I added custom opacity settings to Windows.]]></description>
-            <link>https://mcluck.tech/blog/how-i-made-windows-sexier/</link>
-            <guid isPermaLink="true">https://mcluck.tech/blog/how-i-made-windows-sexier/</guid>
+            <link>https://mcluck.tech/blog/how-i-made-windows-cooler/</link>
+            <guid isPermaLink="true">https://mcluck.tech/blog/how-i-made-windows-cooler/</guid>
             <pubDate>Fri, 25 May 2018 00:00:00 GMT</pubDate>
         </item>
         <item>
