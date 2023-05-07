@@ -29214,19 +29214,21 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   };
   var wasAddNodePressed = false;
   var Canvas = () => {
+    const reactFlow = useReactFlow();
     const [nodes, setNodes] = (0, import_react8.useState)(initialNodes);
     const [edges, setEdges] = (0, import_react8.useState)(initialEdges);
     const addNodeWasPressed = useKeyPress("Space");
     if (addNodeWasPressed && !wasAddNodePressed) {
       requestAnimationFrame(() => {
+        const viewport = reactFlow.getViewport();
         setNodes(
           (nodes2) => nodes2.concat([
             {
               id: nodes2.length.toString(),
               type: "data",
               position: {
-                x: mouse.x - 50,
-                y: mouse.y - 50
+                x: (mouse.x - viewport.x) / viewport.zoom - 50,
+                y: (mouse.y - viewport.y) / viewport.zoom - 50
               },
               data: {
                 name: "<New Node>",
