@@ -29344,7 +29344,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         nodeTypes,
         defaultEdgeOptions: { type: "smoothstep" },
         onMouseMove,
-        deleteKeyCode: deleteKeyCodes
+        deleteKeyCode: deleteKeyCodes,
+        multiSelectionKeyCode: "Control"
       },
       /* @__PURE__ */ import_react8.default.createElement(Background$1, { gap: 40 }),
       /* @__PURE__ */ import_react8.default.createElement(Controls$1, null)
