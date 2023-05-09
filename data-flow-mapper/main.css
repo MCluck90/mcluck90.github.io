@@ -49,14 +49,13 @@ body {
   height: 100%;
 }
 
-/* vanilla-extract-css-ns:src/Canvas/DataNode/DataNode.css.ts.vanilla.css?source=LkRhdGFOb2RlX3Jvb3RfX25tdmVzczAgewogIGJhY2tncm91bmQ6IHZhcigtLW5vZGUtYmFja2dyb3VuZF9fMTd3ZDducjQpOwogIGNvbG9yOiB2YXIoLS1ub2RlLWZvcmVncm91bmRfXzE3d2Q3bnI1KTsKICBib3JkZXI6IHNvbGlkIDFweCB2YXIoLS1ub2RlLWJvcmRlckNvbG9yX18xN3dkN25yNik7CiAgYm9yZGVyLXJhZGl1czogNnB4OwogIHBhZGRpbmc6IDAuNWVtIDA7CiAgdGV4dC1hbGlnbjogY2VudGVyOwp9Ci5EYXRhTm9kZV9pbnZhbGlkX19ubXZlc3MxIHsKICBiYWNrZ3JvdW5kOiB2YXIoLS1ub2RlLXNlbGVjdGVkLWJhY2tncm91bmRfXzE3d2Q3bnJhKTsKICBjb2xvcjogdmFyKC0tbm9kZS1zZWxlY3RlZC1mb3JlZ3JvdW5kX18xN3dkN25yYik7CiAgYm9yZGVyOiBzb2xpZCAxcHggdmFyKC0tbm9kZS1pbnZhbGlkLWJvcmRlckNvbG9yX18xN3dkN25yOSk7Cn0KLkRhdGFOb2RlX3NlbGVjdGVkX19ubXZlc3MyIHsKICBiYWNrZ3JvdW5kOiB2YXIoLS1ub2RlLXNlbGVjdGVkLWJhY2tncm91bmRfXzE3d2Q3bnJhKTsKICBjb2xvcjogdmFyKC0tbm9kZS1zZWxlY3RlZC1mb3JlZ3JvdW5kX18xN3dkN25yYik7CiAgYm9yZGVyOiBzb2xpZCAxcHggdmFyKC0tbm9kZS1zZWxlY3RlZC1ib3JkZXJDb2xvcl9fMTd3ZDducmMpOwp9Ci5EYXRhTm9kZV9uYW1lX19ubXZlc3MzIHsKICBkaXNwbGF5OiBibG9jazsKICBwYWRkaW5nOiAwIDAuNWVtOwp9Ci5EYXRhTm9kZV9hZGRBdHRyaWJ1dGVCdXR0b25fX25tdmVzczQgewogIG1hcmdpbi10b3A6IDAuNWVtOwp9 */
+/* vanilla-extract-css-ns:src/Canvas/DataNode/DataNode.css.ts.vanilla.css?source=#H4sIAAAAAAAAA82TzXKCMBSF9z5FNs7IjDjBilZc9WfTTV+BCeSKmcINE4La6fjuDdGgcWi77QIWh3N/vpMwe2WavUsOqZJSpylWe2gaSr5GhGQs/yiUbJEnZM/UJAzRGMOrnKbR6sBXqBbBxvhzWUrlWbdSwZ01ttZMKg7G28hScBLVR2+A/fjSdevLljdloWJctE1ClvWxU2vGucAiIXQWQ0XoZnQazXougXtmhji06De0BkrINfAhRvYDY18zAJv9DXtZbxB6HfgobpRjmf8zluvIAZj8DmYHzHgcyoNF4aKpS/aZkG0Jd0d7PtxOM3EVGAoNlbkCOaAG5XdGVoHru7B9u3YJiXybxX/Duu2vfWzN5/6GZXveIwTk3dyD4HqXkLnb4zb3UiAwFRbdzTQbTdaUQzElqsjYhE6jRzo174DQsafZJyDz+Cr3Ytx7L9VneRX7shUjSsfe6aBEGPhfTE8/ApPuk9ZKZK2G51ZriS6KpY2iYqoQGGpZJy7/0zfhS0c2MgQAAA== */
 .DataNode_root__nmvess0 {
   background: var(--node-background__17wd7nr4);
   color: var(--node-foreground__17wd7nr5);
   border: solid 1px var(--node-borderColor__17wd7nr6);
   border-radius: 6px;
   padding: 0.5em 0;
-  text-align: center;
 }
 .DataNode_invalid__nmvess1 {
   background: var(--node-selected-background__17wd7nra);
@@ -68,11 +67,22 @@ body {
   color: var(--node-selected-foreground__17wd7nrb);
   border: solid 1px var(--node-selected-borderColor__17wd7nrc);
 }
-.DataNode_name__nmvess3 {
-  display: block;
+.DataNode_header__nmvess3 {
+  display: flex;
   padding: 0 0.5em;
+  align-items: center;
 }
-.DataNode_addAttributeButton__nmvess4 {
+.DataNode_name__nmvess4 {
+  flex: 1;
+}
+.DataNode_colorInput__nmvess5 {
+  align-self: flex-end;
+  width: 2.5em;
+  background: linear-gradient(90deg, rgba(0, 180, 0, 1) 0%, rgba(0, 180, 180, 1) 25%, rgba(0, 0, 180, 1) 50%, rgba(180, 0, 180, 1) 75%, rgba(180, 0, 0, 1) 100%);
+  border: none;
+  border-radius: 50%;
+}
+.DataNode_addAttributeButton__nmvess6 {
   margin-top: 0.5em;
 }
 

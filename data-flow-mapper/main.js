@@ -28967,9 +28967,11 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var useCanvasContext = () => (0, import_react5.useContext)(CanvasContext);
 
   // src/Canvas/DataNode/DataNode.css.ts
-  var addAttributeButton = "DataNode_addAttributeButton__nmvess4";
+  var addAttributeButton = "DataNode_addAttributeButton__nmvess6";
+  var colorInput = "DataNode_colorInput__nmvess5";
+  var header = "DataNode_header__nmvess3";
   var invalid = "DataNode_invalid__nmvess1";
-  var name = "DataNode_name__nmvess3";
+  var name = "DataNode_name__nmvess4";
   var root3 = "DataNode_root__nmvess0";
   var selected = "DataNode_selected__nmvess2";
 
@@ -29085,6 +29087,14 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     );
   };
 
+  // src/theme.css.ts
+  var theme = { textColor: "var(--textColor__17wd7nr0)", backgroundColor: "var(--backgroundColor__17wd7nr1)", toolbar: { background: "var(--toolbar-background__17wd7nr2)", foreground: "var(--toolbar-foreground__17wd7nr3)" }, node: { background: "var(--node-background__17wd7nr4)", foreground: "var(--node-foreground__17wd7nr5)", borderColor: "var(--node-borderColor__17wd7nr6)", invalid: { background: "var(--node-invalid-background__17wd7nr7)", foreground: "var(--node-invalid-foreground__17wd7nr8)", borderColor: "var(--node-invalid-borderColor__17wd7nr9)" }, selected: { background: "var(--node-selected-background__17wd7nra)", foreground: "var(--node-selected-foreground__17wd7nrb)", borderColor: "var(--node-selected-borderColor__17wd7nrc)" }, attribute: { background: "var(--node-attribute-background__17wd7nrd)" }, input: { color: "var(--node-input-color__17wd7nre)", borderColor: "var(--node-input-borderColor__17wd7nrf)", invalidColor: "var(--node-input-invalidColor__17wd7nrg)" }, output: { color: "var(--node-output-color__17wd7nrh)", borderColor: "var(--node-output-borderColor__17wd7nri)" } }, contextMenu: { background: "var(--contextMenu-background__17wd7nrj)", textColor: "var(--contextMenu-textColor__17wd7nrk)", borderColor: "var(--contextMenu-borderColor__17wd7nrl)" } };
+
+  // src/css-utils.ts
+  var getVariableValue = (variableName) => getComputedStyle(document.body).getPropertyValue(
+    variableName.replace("var(", "").replace(")", "")
+  );
+
   // src/Canvas/DataNode/DataNode.tsx
   var DataNode = ({
     id: id2,
@@ -29092,10 +29102,13 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     data
   }) => {
     const ctx = useCanvasContext();
-    const [isEditingTitle, setIsEditingTitle] = (0, import_react7.useState)(false);
-    const onTitleChange = (newTitle) => {
+    const [isEditingName, setIsEditingName] = (0, import_react7.useState)(false);
+    const onNameChange = (newTitle) => {
       ctx.updateNode(id2, { name: newTitle });
-      setIsEditingTitle(false);
+      setIsEditingName(false);
+    };
+    const onColorChange = (color2) => {
+      ctx.updateNode(id2, { color: color2 });
     };
     const onAddAttribute = () => {
       ctx.updateNode(id2, {
@@ -29121,21 +29134,30 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           root3,
           isSelected ? selected : "",
           allAttributesConnected ? "" : invalid
-        ].join(" ")
+        ].join(" "),
+        style: { background: data.color ?? theme.node.background }
       },
-      isEditingTitle ? /* @__PURE__ */ import_react7.default.createElement(EditableTitle, { defaultValue: data.name, onChange: onTitleChange }) : /* @__PURE__ */ import_react7.default.createElement(
+      isEditingName ? /* @__PURE__ */ import_react7.default.createElement(EditableName2, { defaultValue: data.name, onChange: onNameChange }) : /* @__PURE__ */ import_react7.default.createElement("div", { className: header }, /* @__PURE__ */ import_react7.default.createElement(
         "label",
         {
           className: name,
-          onDoubleClick: () => setIsEditingTitle(true)
+          onDoubleClick: () => setIsEditingName(true)
         },
         data.name
-      ),
+      ), /* @__PURE__ */ import_react7.default.createElement(
+        "input",
+        {
+          className: colorInput,
+          type: "color",
+          value: data.color ?? getVariableValue(theme.node.background),
+          onInput: (evt) => onColorChange(evt.currentTarget.value)
+        }
+      )),
       data.attributes.map((attr, i) => /* @__PURE__ */ import_react7.default.createElement(Attribute, { key: i, nodeId: id2, ...attr })),
       /* @__PURE__ */ import_react7.default.createElement("button", { className: addAttributeButton, onClick: onAddAttribute }, "+")
     );
   };
-  var EditableTitle = ({ defaultValue, onChange }) => {
+  var EditableName2 = ({ defaultValue, onChange }) => {
     const onKeyDown = (event) => {
       event.stopPropagation();
       if (event.code === "Enter") {
