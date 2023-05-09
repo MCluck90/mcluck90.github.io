@@ -28813,6 +28813,16 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     return (0, import_jsx_runtime.jsx)("div", { ...rest, style: { ...style2, ...wrapperStyle }, ref, className: cc(["react-flow", className]), "data-testid": "rf__wrapper", id: id2, children: (0, import_jsx_runtime.jsxs)(Wrapper, { children: [(0, import_jsx_runtime.jsx)(GraphView$1, { onInit, onMove, onMoveStart, onMoveEnd, onNodeClick, onEdgeClick, onNodeMouseEnter, onNodeMouseMove, onNodeMouseLeave, onNodeContextMenu, onNodeDoubleClick, nodeTypes: nodeTypesWrapped, edgeTypes: edgeTypesWrapped, connectionLineType, connectionLineStyle, connectionLineComponent, connectionLineContainerStyle, selectionKeyCode, selectionOnDrag, selectionMode, deleteKeyCode, multiSelectionKeyCode, panActivationKeyCode, zoomActivationKeyCode, onlyRenderVisibleElements, selectNodesOnDrag, defaultViewport, translateExtent, minZoom, maxZoom, preventScrolling, zoomOnScroll, zoomOnPinch, zoomOnDoubleClick, panOnScroll, panOnScrollSpeed, panOnScrollMode, panOnDrag, onPaneClick, onPaneMouseEnter, onPaneMouseMove, onPaneMouseLeave, onPaneScroll, onPaneContextMenu, onSelectionContextMenu, onSelectionStart, onSelectionEnd, onEdgeUpdate, onEdgeContextMenu, onEdgeDoubleClick, onEdgeMouseEnter, onEdgeMouseMove, onEdgeMouseLeave, onEdgeUpdateStart, onEdgeUpdateEnd, edgeUpdaterRadius, defaultMarkerColor, noDragClassName, noWheelClassName, noPanClassName, elevateEdgesOnSelect, rfId, disableKeyboardA11y, nodeOrigin, nodeExtent }), (0, import_jsx_runtime.jsx)(StoreUpdater, { nodes, edges, defaultNodes, defaultEdges, onConnect, onConnectStart, onConnectEnd, onClickConnectStart, onClickConnectEnd, nodesDraggable, nodesConnectable, nodesFocusable, edgesFocusable, edgesUpdatable, elementsSelectable, elevateNodesOnSelect, minZoom, maxZoom, nodeExtent, onNodesChange, onEdgesChange, snapToGrid, snapGrid, connectionMode, translateExtent, connectOnClick, defaultEdgeOptions, fitView: fitView2, fitViewOptions, onNodesDelete, onEdgesDelete, onNodeDragStart, onNodeDrag, onNodeDragStop, onSelectionDrag, onSelectionDragStart, onSelectionDragStop, noPanClassName, nodeOrigin, rfId, autoPanOnConnect, autoPanOnNodeDrag, onError, connectionRadius, isValidConnection: isValidConnection2 }), (0, import_jsx_runtime.jsx)(Wrapper$1, { onSelectionChange }), children2, (0, import_jsx_runtime.jsx)(Attribution, { proOptions, position: attributionPosition }), (0, import_jsx_runtime.jsx)(A11yDescriptions, { rfId, disableKeyboardA11y })] }) });
   });
   ReactFlow.displayName = "ReactFlow";
+  function useUpdateNodeInternals() {
+    const store = useStoreApi();
+    return (0, import_react2.useCallback)((id2) => {
+      const { domNode, updateNodeDimensions } = store.getState();
+      const nodeElement = domNode?.querySelector(`.react-flow__node[data-id="${id2}"]`);
+      if (nodeElement) {
+        requestAnimationFrame(() => updateNodeDimensions([{ id: id2, nodeElement, forceUpdate: true }]));
+      }
+    }, []);
+  }
   function createUseItemsState(applyChanges2) {
     return (initialItems) => {
       const [items, setItems] = (0, import_react2.useState)(initialItems);
@@ -29204,6 +29214,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     data: DataNode
   };
   var deleteKeyCodes = ["Backspace", "Delete"];
+  var multiSelectKeyCodes = ["Control", "Command", "Shift"];
   var mouse = {
     x: 0,
     y: 0
@@ -29215,6 +29226,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   var wasAddNodePressed = false;
   var Canvas = () => {
     const reactFlow = useReactFlow();
+    const updateNodeInternals = useUpdateNodeInternals();
     const [nodes, setNodes] = (0, import_react8.useState)(initialNodes);
     const [edges, setEdges] = (0, import_react8.useState)(initialEdges);
     const addNodeWasPressed = useKeyPress("Space");
@@ -29232,7 +29244,14 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               },
               data: {
                 name: "<New Node>",
-                attributes: []
+                attributes: [
+                  {
+                    id: nodes2.length.toString() + "-0",
+                    name: "<self>",
+                    hasInput: false,
+                    isInputConnected: false
+                  }
+                ]
               }
             }
           ])
@@ -29277,6 +29296,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
               return node;
             })
           );
+          updateNodeInternals(id2);
         }
       }),
       []
@@ -29345,7 +29365,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         defaultEdgeOptions: { type: "smoothstep" },
         onMouseMove,
         deleteKeyCode: deleteKeyCodes,
-        multiSelectionKeyCode: "Control"
+        multiSelectionKeyCode: multiSelectKeyCodes
       },
       /* @__PURE__ */ import_react8.default.createElement(Background$1, { gap: 40 }),
       /* @__PURE__ */ import_react8.default.createElement(Controls$1, null)
