@@ -29420,7 +29420,12 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         viewport: reactFlowInstance.getViewport()
       };
       const json = JSON.stringify(saveData);
-      downloadJSON(json, "data-flow-mapper-export.json");
+      const defaultFileName = "data-flow-mapper-export.json";
+      const fileName = prompt("Filename", defaultFileName);
+      if (!fileName) {
+        return;
+      }
+      downloadJSON(json, fileName);
     };
     const onImport = () => {
       fileInputRef.current?.click();
