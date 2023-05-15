@@ -29045,14 +29045,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         position: Position.Left,
         isValidConnection
       }
-    ) : null, isEditingName ? /* @__PURE__ */ import_react6.default.createElement(EditableName, { defaultValue: name2, onChange: onNameChange }) : /* @__PURE__ */ import_react6.default.createElement("div", { className: container2 }, /* @__PURE__ */ import_react6.default.createElement("label", { onDoubleClick: () => setIsEditingName(true) }, name2), /* @__PURE__ */ import_react6.default.createElement("div", { className: actions }, /* @__PURE__ */ import_react6.default.createElement("label", null, "Has input:"), /* @__PURE__ */ import_react6.default.createElement(
+    ) : null, isEditingName ? /* @__PURE__ */ import_react6.default.createElement(EditableName, { defaultValue: name2, onChange: onNameChange }) : /* @__PURE__ */ import_react6.default.createElement("div", { className: container2 }, /* @__PURE__ */ import_react6.default.createElement("label", { onDoubleClick: () => setIsEditingName(true) }, name2), /* @__PURE__ */ import_react6.default.createElement("div", { className: actions }, /* @__PURE__ */ import_react6.default.createElement(
       "input",
       {
+        title: "Has input",
         type: "checkbox",
         checked: hasInput,
         onChange: onToggleHasInput
       }
-    ), /* @__PURE__ */ import_react6.default.createElement("button", { onClick: onDelete }, "\u274C"))), /* @__PURE__ */ import_react6.default.createElement(
+    ), /* @__PURE__ */ import_react6.default.createElement("button", { onClick: onDelete, title: "Delete attribute" }, "\u274C"))), /* @__PURE__ */ import_react6.default.createElement(
       Handle$1,
       {
         id: `${id2}-out`,
@@ -29137,22 +29138,30 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         ].join(" "),
         style: { background: data.color ?? theme.node.background }
       },
-      isEditingName ? /* @__PURE__ */ import_react7.default.createElement(EditableName2, { defaultValue: data.name, onChange: onNameChange }) : /* @__PURE__ */ import_react7.default.createElement("div", { className: header }, /* @__PURE__ */ import_react7.default.createElement(
-        "label",
+      isEditingName ? /* @__PURE__ */ import_react7.default.createElement(EditableName2, { defaultValue: data.name, onChange: onNameChange }) : /* @__PURE__ */ import_react7.default.createElement(
+        "div",
         {
-          className: name,
-          onDoubleClick: () => setIsEditingName(true)
+          className: header,
+          style: { background: data.color ?? theme.node.background }
         },
-        data.name
-      ), /* @__PURE__ */ import_react7.default.createElement(
-        "input",
-        {
-          className: colorInput,
-          type: "color",
-          value: data.color ?? getVariableValue(theme.node.background),
-          onInput: (evt) => onColorChange(evt.currentTarget.value)
-        }
-      )),
+        /* @__PURE__ */ import_react7.default.createElement(
+          "label",
+          {
+            className: name,
+            onDoubleClick: () => setIsEditingName(true)
+          },
+          data.name
+        ),
+        /* @__PURE__ */ import_react7.default.createElement(
+          "input",
+          {
+            className: colorInput,
+            type: "color",
+            value: data.color ?? getVariableValue(theme.node.background),
+            onInput: (evt) => onColorChange(evt.currentTarget.value)
+          }
+        )
+      ),
       data.attributes.map((attr, i) => /* @__PURE__ */ import_react7.default.createElement(Attribute, { key: i, nodeId: id2, ...attr })),
       /* @__PURE__ */ import_react7.default.createElement("button", { className: addAttributeButton, onClick: onAddAttribute }, "+")
     );

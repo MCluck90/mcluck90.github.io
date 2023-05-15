@@ -49,7 +49,12 @@ body {
   height: 100%;
 }
 
-/* vanilla-extract-css-ns:src/Canvas/DataNode/DataNode.css.ts.vanilla.css?source=#H4sIAAAAAAAAA82TzXKCMBSF9z5FNs7IjDjBilZc9WfTTV+BCeSKmcINE4La6fjuDdGgcWi77QIWh3N/vpMwe2WavUsOqZJSpylWe2gaSr5GhGQs/yiUbJEnZM/UJAzRGMOrnKbR6sBXqBbBxvhzWUrlWbdSwZ01ttZMKg7G28hScBLVR2+A/fjSdevLljdloWJctE1ClvWxU2vGucAiIXQWQ0XoZnQazXougXtmhji06De0BkrINfAhRvYDY18zAJv9DXtZbxB6HfgobpRjmf8zluvIAZj8DmYHzHgcyoNF4aKpS/aZkG0Jd0d7PtxOM3EVGAoNlbkCOaAG5XdGVoHru7B9u3YJiXybxX/Duu2vfWzN5/6GZXveIwTk3dyD4HqXkLnb4zb3UiAwFRbdzTQbTdaUQzElqsjYhE6jRzo174DQsafZJyDz+Cr3Ytx7L9VneRX7shUjSsfe6aBEGPhfTE8/ApPuk9ZKZK2G51ZriS6KpY2iYqoQGGpZJy7/0zfhS0c2MgQAAA== */
+/* vanilla-extract-css-ns:src/Canvas/DataNode/DataNode.css.ts.vanilla.css?source=#H4sIAAAAAAAAA82Uz27iMBDG7zyFV6tKiYRRQhvYhtP+uexlXyGaxJNg4diRPQGqVd99HdNQQumuetsDIL7MeOb3zTgLi1ARr5U5FAWKBhcOFVaEgi2uH/EOaDt/q+e1qXr30Xi+l06WCt/JY79njDmyZoc5+1zXCfsk285YAk2b2fNs8QMIfhmBhTWGikK3e3QuCWklVLvGml6LnO3BRpxrH8hf5aJI1wex1vYh3vj4yihjJ6G1sXgVmoXQ0liBPtYZJQVLu+OkQHj4fTjtnLa6SOMWhOxdzlbdcVA7EELqJmfJIsOWJVMuqffgi4xo6d/QxqHdYoR3GM85N2DLf8O+tHcT+jGeooylRpblf8byWvIGTHUFs0XwMSPKfUAR0nUKnnJWKwyjbcE2UvvJnmY7SN6tRnNJ2PoNqFAT2s2Hl/WyEQ0tjm08hDaG6jlLh2Nro4kfUDZbyj28Ete1pN6ilTSVeaVklzPCI10YTRa068CiDmotFQUrsZMQZTFzQL0FwihNktgfvEdLURqzxsKTq0Dh8KfyDVlwFF0vRyjyU3f9+RZnAebklx9NfbKVow4QBylom7Pl6OsllJIawfJmuGi+2+gxEdjMmW1KiJJ5+iWZ+++YJXcTLXxitsxe5bOYnWNfsk/yOpvKQfT4d5Nl00bjjevvz5xa4N8DX4msLHvCbz2R0aMVq+l6lcpUu8l+hTcH9GT8qg0/Fw7dD/48/wGo6zg14gUAAA== */
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path,
+.react-flow__edge:focus-visible .react-flow__edge-path {
+  stroke: #ff0 !important;
+}
 .DataNode_root__nmvess0 {
   background: var(--node-background__17wd7nr4);
   color: var(--node-foreground__17wd7nr5);
@@ -69,11 +74,17 @@ body {
 }
 .DataNode_header__nmvess3 {
   display: flex;
-  padding: 0 0.5em;
+  margin: 0 0.5em;
   align-items: center;
+  background: var(--node-background__17wd7nr4);
 }
 .DataNode_name__nmvess4 {
   flex: 1;
+  font-weight: bold;
+  background: inherit;
+  background-clip: text;
+  color: transparent;
+  filter: sepia(5) saturate(100) invert(1) grayscale(1) contrast(9);
 }
 .DataNode_colorInput__nmvess5 {
   align-self: flex-end;
@@ -83,15 +94,21 @@ body {
   border-radius: 50%;
 }
 .DataNode_addAttributeButton__nmvess6 {
-  margin-top: 0.5em;
+  display: block;
+  margin: 0.5em auto 0 auto;
+  width: 3em;
 }
 
-/* vanilla-extract-css-ns:src/Canvas/DataNode/Attribute/Attribute.css.ts.vanilla.css?source=LkF0dHJpYnV0ZV9hdHRyaWJ1dGVfXzFiaGRzOG0wIHsKICBwb3NpdGlvbjogcmVsYXRpdmU7CiAgYmFja2dyb3VuZDogdmFyKC0tbm9kZS1hdHRyaWJ1dGUtYmFja2dyb3VuZF9fMTd3ZDducmQpOwogIG1hcmdpbi10b3A6IDAuNWVtOwogIHBhZGRpbmc6IDAgMWVtOwp9Ci5yZWFjdC1mbG93X19oYW5kbGUuQXR0cmlidXRlX2lucHV0X18xYmhkczhtMSB7CiAgYmFja2dyb3VuZDogdmFyKC0tbm9kZS1pbnB1dC1jb2xvcl9fMTd3ZDducmUpOwp9Ci5yZWFjdC1mbG93X19oYW5kbGUuQXR0cmlidXRlX291dHB1dF9fMWJoZHM4bTIgewogIGJhY2tncm91bmQ6IHZhcigtLW5vZGUtb3V0cHV0LWNvbG9yX18xN3dkN25yaCk7Cn0KLnJlYWN0LWZsb3dfX2hhbmRsZS5BdHRyaWJ1dGVfaW52YWxpZElucHV0X18xYmhkczhtMyB7CiAgYmFja2dyb3VuZDogdmFyKC0tbm9kZS1pbnB1dC1pbnZhbGlkQ29sb3JfXzE3d2Q3bnJnKTsKfQouQXR0cmlidXRlX2NvbnRhaW5lcl9fMWJoZHM4bTQgewogIGRpc3BsYXk6IGZsZXg7CiAganVzdGlmeS1jb250ZW50OiBzcGFjZS1iZXR3ZWVuOwp9Ci5BdHRyaWJ1dGVfYWN0aW9uc19fMWJoZHM4bTUgewogIG1hcmdpbi1sZWZ0OiAyZW07Cn0= */
+/* vanilla-extract-css-ns:src/Canvas/DataNode/Attribute/Attribute.css.ts.vanilla.css?source=LkF0dHJpYnV0ZV9hdHRyaWJ1dGVfXzFiaGRzOG0wIHsKICBwb3NpdGlvbjogcmVsYXRpdmU7CiAgbWFyZ2luLXRvcDogMC41ZW07CiAgcGFkZGluZzogMC4xZW0gMWVtOwogIGJhY2tncm91bmQ6IGluaGVyaXQ7CiAgZmlsdGVyOiBicmlnaHRuZXNzKDEuMjUpOwogIGJvcmRlcjogc29saWQgMXB4ICMwMDA7CiAgYm9yZGVyLWxlZnQ6IG5vbmU7CiAgYm9yZGVyLXJpZ2h0OiBub25lOwp9Ci5yZWFjdC1mbG93X19oYW5kbGUuQXR0cmlidXRlX2lucHV0X18xYmhkczhtMSB7CiAgYmFja2dyb3VuZDogdmFyKC0tbm9kZS1pbnB1dC1jb2xvcl9fMTd3ZDducmUpOwp9Ci5yZWFjdC1mbG93X19oYW5kbGUuQXR0cmlidXRlX291dHB1dF9fMWJoZHM4bTIgewogIGJhY2tncm91bmQ6IHZhcigtLW5vZGUtb3V0cHV0LWNvbG9yX18xN3dkN25yaCk7Cn0KLnJlYWN0LWZsb3dfX2hhbmRsZS5BdHRyaWJ1dGVfaW52YWxpZElucHV0X18xYmhkczhtMyB7CiAgYmFja2dyb3VuZDogdmFyKC0tbm9kZS1pbnB1dC1pbnZhbGlkQ29sb3JfXzE3d2Q3bnJnKTsKfQouQXR0cmlidXRlX2NvbnRhaW5lcl9fMWJoZHM4bTQgewogIGRpc3BsYXk6IGZsZXg7CiAganVzdGlmeS1jb250ZW50OiBzcGFjZS1iZXR3ZWVuOwogIGJhY2tncm91bmQ6IGluaGVyaXQ7Cn0KLkF0dHJpYnV0ZV9jb250YWluZXJfXzFiaGRzOG00IGxhYmVsIHsKICBiYWNrZ3JvdW5kOiBpbmhlcml0OwogIGJhY2tncm91bmQtY2xpcDogdGV4dDsKICBjb2xvcjogdHJhbnNwYXJlbnQ7CiAgZmlsdGVyOiBzZXBpYSg1KSBzYXR1cmF0ZSgxMDApIGludmVydCgxKSBncmF5c2NhbGUoMSkgY29udHJhc3QoOSk7Cn0KLkF0dHJpYnV0ZV9hY3Rpb25zX18xYmhkczhtNSB7CiAgbWFyZ2luLWxlZnQ6IDJlbTsKfQ== */
 .Attribute_attribute__1bhds8m0 {
   position: relative;
-  background: var(--node-attribute-background__17wd7nrd);
   margin-top: 0.5em;
-  padding: 0 1em;
+  padding: 0.1em 1em;
+  background: inherit;
+  filter: brightness(1.25);
+  border: solid 1px #000;
+  border-left: none;
+  border-right: none;
 }
 .react-flow__handle.Attribute_input__1bhds8m1 {
   background: var(--node-input-color__17wd7nre);
@@ -105,13 +122,25 @@ body {
 .Attribute_container__1bhds8m4 {
   display: flex;
   justify-content: space-between;
+  background: inherit;
+}
+.Attribute_container__1bhds8m4 label {
+  background: inherit;
+  background-clip: text;
+  color: transparent;
+  filter: sepia(5) saturate(100) invert(1) grayscale(1) contrast(9);
 }
 .Attribute_actions__1bhds8m5 {
   margin-left: 2em;
 }
 
-/* vanilla-extract-css-ns:src/Toolbar/Toolbar.css.ts.vanilla.css?source=LlRvb2xiYXJfcm9vdF9fMXc0c3BubzAgewogIGJhY2tncm91bmQ6IHZhcigtLXRvb2xiYXItYmFja2dyb3VuZF9fMTd3ZDducjIpOwogIGNvbG9yOiB2YXIoLS10b29sYmFyLWZvcmVncm91bmRfXzE3d2Q3bnIzKTsKfQ== */
+/* vanilla-extract-css-ns:src/Toolbar/Toolbar.css.ts.vanilla.css?source=LlRvb2xiYXJfcm9vdF9fMXc0c3BubzAgewogIHBvc2l0aW9uOiBhYnNvbHV0ZTsKICB0b3A6IDA7CiAgbGVmdDogMDsKICB6LWluZGV4OiA5OTk5OTk5OwogIHdpZHRoOiAxMDAlOwogIGJhY2tncm91bmQ6IHZhcigtLXRvb2xiYXItYmFja2dyb3VuZF9fMTd3ZDducjIpOwogIGNvbG9yOiB2YXIoLS10b29sYmFyLWZvcmVncm91bmRfXzE3d2Q3bnIzKTsKfQ== */
 .Toolbar_root__1w4spno0 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999999;
+  width: 100%;
   background: var(--toolbar-background__17wd7nr2);
   color: var(--toolbar-foreground__17wd7nr3);
 }
